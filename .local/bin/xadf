@@ -48,6 +48,12 @@ install_seat="$HOME/xadf"
 install_branch="trunk"
 xadf_https_repo="https://gitlab.com/heno72/xadf.git"
 
+# Make necessary directories
+test ! -d ~/.config && mkdir ~/.config
+test ! -d ~/.config/xadf && mkdir ~/.config/xadf
+test ! -d ~/.local && mkdir ~/.local
+test ! -d ~/.local/xadf && mkdir ~/.local/xadf
+
 xadf_build_recipe(){
 # builds recipe
 printf "[xadf]: Generate recipe...\n"
@@ -90,8 +96,7 @@ git clone --separate-git-dir="$install_seat" "$xadf_https_repo" ~/.xadf-tmp
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL! cleaning up...\n"
-	rm -rf "$install_seat"
-	rm -rf "~/.xadf-tmp"
+	rm -rf "$install_seat" ~/.xadf-tmp
 	exit 6
 else
 	printf "[xadf]: DONE\n"
