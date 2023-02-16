@@ -1,0 +1,145 @@
+#!/bin/bash
+########################################################################
+## Useful simple functions
+########################################################################
+
+function caterr { cat "$@" >&2; }
+function echoerr { echo "$@" >&2; }
+function xadf {
+case $1 in
+load)
+  source $xadf/head.sh
+  ;;
+update)
+  local stpwd="$(pwd)"
+  cd "$xadf"
+  git pull
+  cd "$stpwd"
+  ;;
+*)
+  echoerr "Error! No Arguments!"
+  echoerr "Accepted arguments are:"
+  echoerr "  load   : reload xadf's head.sh"
+  echoerr "  update : update xadf from git"
+esac
+}
+
+########################################################################
+## Do some calculation with bc
+########################################################################
+## This function loads xbc extensions first
+function bcxt {
+bc -lq ~/.local/share/bc/extensions.bc $@
+}
+
+## This function loads xbc extensions and xbc
+## scientific constants
+function bcsc {
+bc -lq ~/.local/share/bc/extensions.bc ~/.local/share/bc/scientific_constants.bc $@
+}
+
+########################################################################
+## igdl specifics
+########################################################################
+## This function remove pattern $2 from file $1
+function rmfrlist
+{
+  if [ $# -eq 2 ]; then
+    ## remove pattern $2 from file $1
+    cat "$1" | grep -v "$2" > tmp.txt
+    ## Overwriting the original file with filtered file
+    cat tmp.txt > "$1"
+    rm tmp.txt
+  else
+    echo "usage: rmfrlist <file> <pattern>"
+    echo "For example, to remove any trace of tawan_v from file randomlist:"
+    echo "~$ rmfrlist randomlist tawan_v"
+  fi
+}
+
+########################################################################
+## Some extras
+########################################################################
+
+## This function makes qr code of text $2, then it
+## displays the resulting qrcode.
+function qrquick
+{
+  if [ $# -eq 2 ]; then
+    qrencode -s 12 -m 1 -o $1.png "$2";
+    display $1.png
+  else
+    echo "usage: qrquick <output> <text>"
+  fi
+}
+
+## ssl encryption function
+
+function ssl-encrypt
+{
+  if [ $# -eq 2 ]; then
+    openssl enc -aes-256-cbc -a -salt -in $1 -out $2
+  else
+    echo "usage: ssl-encrypt <source> <destination>"
+  fi
+}
+
+function ssl-decrypt
+{
+  if [ $# -eq 2 ]; then
+    openssl enc -aes-256-cbc -d -a -in $1 -out $2
+  else
+    echo "usage: ssl-decrypt <source> <destination>"
+  fi
+}
+
+## Wrapper for mpv and some fancy tasks such as building a playlist
+
+mplay() {
+case $1 in
+  w|watch)
+    # Play the playlist file
+    mpv --playlist=play.list
+    ;;
+  l|list|updatelist)
+    # Update playlist file
+    ls|grep -i "mkv\|mp4" |tee play.list
+    ;;
+esac
+}
+
+## Specific functions to get user agents from our server
+
+uaput(){
+case $1 in
+"")
+  target=ytua
+  ;;
+*)
+  target=$1
+  ;;
+esac
+
+ftp ftp.xenomancy.id <<EOF
+cd xenoagents/agents
+put $target
+bye
+EOF
+}
+
+uaget(){
+case $1 in
+"")
+  target=ytua
+  ;;
+*)
+  target=$1
+  ;;
+esac
+
+ftp ftp.xenomancy.id <<EOF
+cd xenoagents/agents
+get $target
+bye
+EOF
+}
