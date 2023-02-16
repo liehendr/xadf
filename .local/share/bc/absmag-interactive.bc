@@ -1,0 +1,27 @@
+#!/usr/bin/bc -l
+
+scale=8
+define log(x)
+{
+        return(l(x)/l(10))
+}
+
+define void absmag(lstar)
+{
+  auto lsunbol,lsun,absmagval,y,z
+  lsunbol=3.0128*10^28
+  lsun=3.828*10^26
+  y=lstar*lsun
+  z=y/lsunbol
+  -2.5 * log(z)
+}
+
+print "\nCalculate Absolute Magnitude\n"
+print "To use: absmag(x) where x is star luminosity\n"
+print "        in Solar Luminosity (lum. sol is 1)\n"
+print "Input Star Luminosity: "; inputlum = read()
+print "Star's Absolute Magnitude: "
+absmag(inputlum)
+print "\n"
+print "End of program\n"
+quit
