@@ -165,8 +165,8 @@ while :; do
 		--seat ) # set git dir to DIR
 			if test -z "$2"
 			then
-				printf >&2 "Error: No directory is set\n\n"
-				xadf_show_help
+				printf >&2 "Error: No directory is set!\nUsage: xadf -h\n\n"
+
 				exit 1
 			else
 				export install_seat="$2"
@@ -176,7 +176,7 @@ while :; do
 		-b | --branch ) # sets checked out branch
 			if test -z "$2"
 			then
-				printf >&2 "Error: No branch is set\n\n"
+				printf >&2 "Error: No branch is set\nUsage: xadf -h\n\n"
 				xadf_show_help
 				exit 2
 			else
@@ -198,7 +198,7 @@ while :; do
 			;;
 		# general matching for all other cases
 		-* ) # invalid options
-			printf >&2 "Error: Invalid flag '%s'\n\n" "$1"
+			printf >&2 "Error: Invalid flag '%s'\nUsage: xadf -h\n\n" "$1"
 			xadf_show_help
 			shift
 			exit 1
