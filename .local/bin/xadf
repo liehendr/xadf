@@ -48,29 +48,35 @@ install_seat="$HOME/xadf"
 install_branch="trunk"
 xadf_https_repo="https://gitlab.com/heno72/xadf.git"
 
+# Make necessary directories
+test ! -d ~/.config && mkdir ~/.config
+test ! -d ~/.config/xadf && mkdir ~/.config/xadf
+test ! -d ~/.local && mkdir ~/.local
+test ! -d ~/.local/xadf && mkdir ~/.local/xadf
+
 xadf_build_recipe(){
 # builds recipe
-printf "[xadf]: Generate recipe..."
+printf "[xadf]: Generate recipe...\n"
 cat ~/.local/xadf/default-recipe.txt > ~/.config/xadf/recipe.txt
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 4
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 }
 
 xadf_build_xadfrc(){
 # builds xadfrc
-printf "[xadf]: Generate xadfrc..."
+printf "[xadf]: Generate xadfrc...\n"
 . ~/.local/xadf/template-xadfrc | sed "s#$HOME#\$HOME#" > ~/.config/xadf/xadfrc
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 5
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 }
 
@@ -85,79 +91,80 @@ printf "[xadf]: branch is '%s'\n" "$install_branch"
 #    all contents of the repo. If --seat is set, replicate git directory
 #    to the specified location. Otherwise, replicate git directory to
 #    $HOME/xadf
-printf "[xadf]: Clone from repo '%s'..." "$xadf_https_repo"
+printf "[xadf]: Clone from repo '%s'...\n" "$xadf_https_repo"
 git clone --separate-git-dir="$install_seat" "$xadf_https_repo" ~/.xadf-tmp
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL! cleaning up...\n"
+	rm -rf "$install_seat" ~/.xadf-tmp
 	exit 6
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 
 # 2. Switch working directory to temporary working directory
-printf "[xadf]: Switch working directory to '~/.xadf-tmp'..."
+printf "[xadf]: Switch working directory to '~/.xadf-tmp'...\n"
 pushd ~/.xadf-tmp
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 7
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 
 # 3. If --branch is set, checks out to branch NAME
-printf "[xadf]: Checks out to branch '%s'..." "$install_branch"
+printf "[xadf]: Checks out to branch '%s'...\n" "$install_branch"
 git --git-dir="$install_seat" --work-tree="$HOME" checkout -b "$install_branch"
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 8
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 
 # 4. rsync all contents of $HOME/.xadf-tmp/ except '.git' to $HOME
-printf "[xadf]: Syncinc repo to '%s'..." "$HOME"
-rsync --recursive --verbose --exclude '.git' "~/.xadf-tmp/" "$HOME/"
+printf "[xadf]: Syncing repo to '%s'...\n" "$HOME"
+rsync --recursive --verbose --exclude '.git' "$HOME/.xadf-tmp/" "$HOME/"
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 9
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 
 # 5. Removes $HOME/.xadf-tmp/
-printf "[xadf]: Returns to '%s'..." "$HOME"
+printf "[xadf]: Returns to '%s'...\n" "$HOME"
 popd
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 10
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 
-printf "[xadf]: Deletes temporary working directory '~/.xadf-tmp'..."
+printf "[xadf]: Deletes temporary working directory '~/.xadf-tmp'...\n"
 rm -rf "~/.xadf-tmp"
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 11
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 
 # 6. Make untracked files not shown: xadf config status.showUntrackedFiles no
-printf "[xadf]: Makes untracked file not shown..."
+printf "[xadf]: Makes untracked file not shown...\n"
 git --git-dir="$install_seat" --work-tree="$HOME" config status.showUntrackedFiles no
 if test $? -gt 0
 then
-	printf "FAIL\n"
+	printf "[xadf]: FAIL\n"
 	exit 12
 else
-	printf "DONE\n"
+	printf "[xadf]: DONE\n"
 fi
 
 # 7. Check if .bashrc exists. If exists, go to 9, else go to 8
@@ -168,15 +175,14 @@ test ! -f "$HOME/.bashrc" && cp /etc/skel/.bashrc ~/.bashrc
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "[xadf]: Ensures xadfrc is sourced in ~.bashrc..."
+printf "[xadf]: Ensures xadfrc is sourced in ~.bashrc...\n"
 sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$"
 test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
 if test $? -gt 0
 then
-	printf "FAIL\n"
-	exit 12
+	printf "[xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "DONE\n"
+	printf "[xadf]: xadfrc is appended to ~.bashrc...DONE\n"
 fi
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
