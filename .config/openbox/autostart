@@ -1,0 +1,60 @@
+## Custom autostart without pcmanfm to manage the desktop.
+
+#(sleep 2s && xset -dpms; xset s off) &
+
+## Basic compositing effects
+(sleep 1s && compton -CGb) &
+
+## Panel
+(sleep 1s && tint2) &
+#(sleep 1s && docky) &
+#(sleep 1s && lxpanel) &
+#(sleep 1s && stalonetray) &
+
+## Startup
+
+(sleep 2s && pnmixer) &
+#[[ -f /usr/bin/pnmixer ]] && (sleep 1s && pnmixer) &
+[[ -f /usr/bin/conky ]] && (sleep 3s && conky) &
+
+(sleep 1s && nm-applet) &
+(sleep 1s && octopi-notifier) &
+
+## Optionally enable file manager in daemon mode for automounting
+(sleep 1s && pcmanfm-qt -d) &
+
+## Optionally enable screensaver
+(sleep 1s && xautolock -time 15 -locker 'xlock -mode blank') &
+
+## Optionally disable touchpad
+#/usr/bin/synclient TouchpadOff=1 &
+
+## Background
+#feh --bg-scale /usr/share/backgrounds/andromeda.png &
+nitrogen --restore &
+
+# PCManFM to handle desktop
+#pcmanfm --desktop &
+
+## Additional Startups
+# Polkit for gksudo
+lxpolkit &
+
+# Keyring opener at startup;
+# "Login" is added to attempt fixing Chrome's keyring issue.
+/usr/bin/gnome-keyring-daemon --start --components=secrets,pkcs11,ssh &
+
+# Pretty self-explanatory: to start synapse
+synapse -s &
+
+# To start ulauncher, if installed
+#(sleep 3s && env GDK_BACKEND=x11 /usr/bin/ulauncher --hide-window) &
+
+# To start dropbox
+dropbox start -i &
+
+# To enable power manager of xfce (I forget why I put it here)
+xfce4-power-manager &
+
+# To enable xscreensaver
+xscreensaver &

@@ -1,0 +1,10 @@
+<keyboard>
+<!-- add this to your rc.xml to enable dmenu -->
+    <!-- Keybinding to run dmenu -->
+    <keybind key="A-d">
+        <action name="Execute">
+            <name>dmenu</name>
+            <command>dmenu_run</command>
+        </action>
+    </keybind>
+</keyboard>
