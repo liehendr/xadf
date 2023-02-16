@@ -104,7 +104,7 @@ fi
 
 # 2. Switch working directory to temporary working directory
 printf "[xadf]: Switch working directory to '~/.xadf-tmp'...\n"
-pushd ~/.xadf-tmp
+pushd ~/.xadf-tmp > /dev/null
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
@@ -137,7 +137,7 @@ fi
 
 # 5. Removes $HOME/.xadf-tmp/
 printf "[xadf]: Returns to '%s'...\n" "$HOME"
-popd
+popd > /dev/null
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
@@ -295,7 +295,7 @@ while :; do
 				printf >&2 "Error: No directory is set!\nUsage: xadf -h\n\n"
 				exit 1
 			else
-				export install_seat="$2"
+				export install_seat="$(realpath $2)"
 				shift 2
 			fi
 			;;
