@@ -120,7 +120,7 @@ else
 fi
 
 # 4. rsync all contents of $HOME/.xadf-tmp/ except '.git' to $HOME
-printf "[xadf]: Syncinc repo to '%s'..." "$HOME"
+printf "[xadf]: Syncing repo to '%s'..." "$HOME"
 rsync --recursive --verbose --exclude '.git' "~/.xadf-tmp/" "$HOME/"
 if test $? -gt 0
 then
