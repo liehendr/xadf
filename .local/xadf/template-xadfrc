@@ -4,7 +4,7 @@ cat <<TERMINUS
 # An init script supposed to be called from .bashrc, and performs the following actions:
 # 1. ensures ~/.local/bin is in the \$PATH
 # 2. defines xadfconfig="\$HOME/.config/xadf"
-# 3. defines xadfmods="\$HOME/.local/share/xadf"
+# 3. defines xadfmods="\$HOME/.local/xadf"
 # 4. defines xadfdir="\$HOME/xadf/" # configurable with `xadf --seat DIR` during install
 # 5. if no \$xadfconfig/recipe.txt, calls `xadf --build-recipe`
 # 6. else sources \$xadfconfig/recipe.txt
