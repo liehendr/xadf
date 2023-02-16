@@ -115,7 +115,7 @@ fi
 
 # 3. If --branch is set, checks out to branch NAME
 printf "[xadf]: Checks out to branch '%s'...\n" "$install_branch"
-git --git-dir="$install_seat" --work-tree="$HOME" checkout -b "$install_branch"
+git --git-dir="$install_seat" --work-tree="$HOME" checkout "$install_branch"
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
