@@ -1,6 +1,4 @@
-#!/bin/bash
-
-cat <<EOF
+cat <<TERMINUS
 #!/bin/bash
 # A part of xadf (see: xadf -v)
 # An init script supposed to be called from .bashrc, and performs the following actions:
@@ -28,4 +26,4 @@ declare -x xadfdir="$install_seat"
 
 source \$xadfconfig/recipe.txt
 
-EOF
+TERMINUS
