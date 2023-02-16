@@ -91,6 +91,7 @@ if test $? -gt 0
 then
 	printf "[xadf]: FAIL! cleaning up...\n"
 	rm -rf "$install_seat"
+	rm -rf "~/.xadf-tmp"
 	exit 6
 else
 	printf "[xadf]: DONE\n"
