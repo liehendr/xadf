@@ -46,7 +46,7 @@ build_xadfrc=0
 install_mode=0
 install_seat="$HOME/xadf"
 install_branch="trunk"
-xadf_https_repo="https://github.com/heno72/xadf.git"
+xadf_https_repo="https://gitlab.com/heno72/xadf.git"
 
 xadf_build_recipe(){
 # builds recipe
@@ -208,7 +208,7 @@ USAGE
 
   ~$ xadf --build-xadfrc --heno
   --> generates xadfrc and save it to ~/.config/xadf/xadfrc and change upstream
-      link to git@github.com:heno72/xadf.git
+      link to git@gitlab.com:heno72/xadf.git
 
   ~$ xadf status
   --> an alias for 'git --git-dir=\$xadfdir --work-tree\$HOME status'
@@ -234,7 +234,7 @@ Normal usage options:
                             \$xadfmods/template-xadfrc
   --heno                    Essentially an alias for:
                               xadf remote set-url origin \\
-                              git@github.com:heno72/xadf.git
+                              git@gitlab.com:heno72/xadf.git
                             WARNING: This is for my personal needs. Don't use
                             this if you don't have write access there! If so
                             desired, you can change the option or the url to
@@ -356,8 +356,8 @@ if test $is_heno -eq 1
 then
 	if test -n "$xadfdir"
 	then # xadfdir is set, xadf will call itself as an alias
-		"$0" remote set-url origin git@github.com:heno72/xadf.git
+		"$0" remote set-url origin git@gitlab.com:heno72/xadf.git
 	else # is set in installation, will call the raw commands
-		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin git@github.com:heno72/xadf.git
+		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin git@gitlab.com:heno72/xadf.git
 	fi
 fi
