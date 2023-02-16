@@ -1,5 +1,27 @@
 #!/bin/bash
 ###############################################################################
+#
+#   xadf
+#   Copyright (C) 2023  Hendrik Lie
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#   Author: Hendrik Lie
+#   Email : <hendriklie@gmail.com>
+#
+###############################################################################
+#
 # SUMMARY
 # This is essentially our dotfiles repo controller. It can also function as an
 # installer script: downloading the entire repo, sets up alias, append source
@@ -7,10 +29,13 @@
 # called, it can also function as an alias for git with separate home dir,
 # where the git directory is set at either $HOME/xadf or somewhere that is
 # specified with --seat at install time.
+#
 ###############################################################################
+#
 # A bash script to control and manage xa-dotfiles (xadf) in a home folder with
 # bare git methods. When called without its native arguments, act as an alias
 # of git --git-dir=$xadfdir --work-tree=$HOME
+#
 ###############################################################################
 
 # Define state variables
@@ -169,7 +194,7 @@ while :; do
 			;;
 		--heno ) # changes upstream url
 			export is_heno=1
-			shift
+			break
 			;;
 		# general matching for all other cases
 		-* ) # invalid options
@@ -178,11 +203,10 @@ while :; do
 			shift
 			exit 1
 			;;
-		"" ) # No more options
+		"" ) # No options
 			break
 			;;
 		* ) # Practically a git alias with separate git dir
-			shift
 			git --git-dir="$xadfdir" --work-tree="$HOME" "$@"
 			break
 			;;
@@ -211,4 +235,3 @@ if test $is_heno -eq 1
 then
 	xadf remote set-url origin git@github.com:heno72/xadf.git
 fi
-
