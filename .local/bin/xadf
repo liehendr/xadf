@@ -180,10 +180,9 @@ sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$"
 test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
-	exit 12
+	printf "[xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "[xadf]: DONE\n"
+	printf "[xadf]: xadfrc is appended to ~.bashrc...DONE\n"
 fi
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
