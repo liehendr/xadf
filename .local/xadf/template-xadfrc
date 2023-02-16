@@ -21,7 +21,7 @@ test -z "$(echo \$PATH|grep "\$HOME/\.local/bin")" && PATH="\$HOME/.local/bin:\$
 # xadf variable declarations
 declare -x xadfconfig="\$HOME/.config/xadf"
 declare -x xadfmods="\$HOME/.local/share/xadf"
-declare -x xadfdir="$(echo $install_seat|sed 's#$HOME#\$HOME#')"
+declare -x xadfdir="$install_seat"
 
 # Check whether recipe.txt exists, if it doesn't, generate one
 [[ ! -f "\$xadfconfig/recipe.txt" ]] && xadf --build-recipe
