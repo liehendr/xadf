@@ -1,0 +1,14 @@
+#!/bin/bash
+# A part of xadf (see xadf -v)
+# Sources which xadf modules to load
+
+## Standard modules
+source $xadf/custom/bash_aliases
+source $xadf/custom/bash_functions
+
+## Extra modules
+# source $xadf/custom/stack.sh
+# source $xadf/custom/twitter.sh
+# source $xadf/custom/verinsius.sh
+# source $xadf/custom/fta.sh
+# source $xadf/custom/ns.sh

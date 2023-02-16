@@ -1,0 +1,31 @@
+#!/bin/bash
+
+cat <<EOF
+#!/bin/bash
+# A part of xadf (see: xadf -v)
+# An init script supposed to be called from .bashrc, and performs the following actions:
+# 1. ensures ~/.local/bin is in the \$PATH
+# 2. defines xadfconfig="\$HOME/.config/xadf"
+# 3. defines xadfmods="\$HOME/.local/share/xadf"
+# 4. defines xadfdir="\$HOME/xadf/" # configurable with `xadf --seat DIR` during install
+# 5. if no \$xadfconfig/recipe.txt, calls `xadf --build-recipe`
+# 6. else sources \$xadfconfig/recipe.txt
+
+# If \$HOME/.local/bin does not exist, make one
+test ! -d "\$HOME/.local" && mkdir "\$HOME/.local"
+test ! -d "\$HOME/.local/bin" && mkdir "\$HOME/.local/bin"
+
+# Custom PATH: if \$HOME/.local/bin is not present in \$PATH, include it
+test -z "$(echo \$PATH|grep "\$HOME/\.local/bin")" && PATH="\$HOME/.local/bin:\$PATH"
+
+# xadf variable declarations
+declare -x xadfconfig="\$HOME/.config/xadf"
+declare -x xadfmods="\$HOME/.local/share/xadf"
+declare -x xadfdir="$(echo $install_seat|sed 's#$HOME#\$HOME#')"
+
+# Check whether recipe.txt exists, if it doesn't, generate one
+[[ ! -f "\$xadfconfig/recipe.txt" ]] && xadf --build-recipe
+
+source \$xadfconfig/recipe.txt
+
+EOF
