@@ -87,7 +87,7 @@ Normal usage options:
   --build-xadfrc/-x         Produce \$xadfconfig/xadfrc by constructing from
                             \$xadfmods/template-xadfrc
   --heno                    Essentially an alias for:
-                              xadf remote set-url origin \
+                              xadf remote set-url origin \\
                               git@github.com:heno72/xadf.git
                             WARNING: This is for my personal needs. Don't use
                             this if you don't have write access there! If so
@@ -123,10 +123,12 @@ while :; do
 			exit 0
 			;;
 		-h | --help ) # show help text, then exit
+			shift
 			xadf_show_help
 			exit 0
 			;;
 		-v | --version ) # show version, then exit
+			shift
 			xadf_version
 			exit 0
 			;;
@@ -173,7 +175,11 @@ while :; do
 		-* ) # invalid options
 			printf >&2 "Error: Invalid flag '%s'\n\n" "$1"
 			xadf_show_help
+			shift
 			exit 1
+			;;
+		"" ) # No more options
+			break
 			;;
 		* ) # Practically a git alias with separate git dir
 			shift
