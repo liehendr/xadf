@@ -1,0 +1,208 @@
+#!/bin/bash
+###############################################################################
+# SUMMARY
+# This is essentially our dotfiles repo controller. It can also function as an
+# installer script: downloading the entire repo, sets up alias, append source
+# directive to .bashrc, and syncs all contents from dotfiles to $HOME. When
+# called, it can also function as an alias for git with separate home dir,
+# where the git directory is set at either $HOME/xadf or somewhere that is
+# specified with --seat at install time.
+###############################################################################
+# A bash script to control and manage xa-dotfiles (xadf) in a home folder with
+# bare git methods. When called without its native arguments, act as an alias
+# of git --git-dir=$xadfdir --work-tree=$HOME
+###############################################################################
+
+# Define state variables
+version="2023-02-16"
+is_heno=0
+build_recipe=0
+build_xadfrc=0
+install_mode=0
+install_seat="$HOME/xadf"
+install_branch="trunk"
+
+xadf_build_recipe(){
+# builds recipe
+echo "builds recipe"
+}
+
+xadf_build_xadfrc(){
+# builds xadfrc
+echo "builds xadfrc"
+}
+
+xadf_install(){
+# installs xadf
+echo "installs xadf"
+echo "seat is: $install_seat"
+echo "branch is: $install_branch"
+}
+
+xadf_version(){
+# prints version, then exit
+printf "xadf version %s\n\n" "$version"
+}
+
+xadf_show_help(){
+# runs xadf -v
+# prints help text, then exit
+xadf -v
+cat <<ENDOFFILE
+  A bash script to control and manage xa-dotfiles (xadf) in a home
+  folder with bare git methods. When called without its native
+  arguments, act as an alias of:
+    git --git-dir=\$xadfdir --work-tree=\$HOME "\$@"
+
+USAGE
+
+  ~$ xadf -i --seat "\$HOME/.dotfiles"
+  --> installs xadf, and sets up git directory for xadf to \$HOME/.dotfiles
+      instead of \$HOME/xadf
+
+  ~$ xadf --build-xadfrc --heno
+  --> generates xadfrc and save it to ~/.config/xadf/xadfrc and change upstream
+      link to git@github.com:heno72/xadf.git
+
+  ~$ xadf status
+  --> an alias for 'git --git-dir=\$xadfdir --work-tree\$HOME status'
+      Consider it like 'git status' but with separated git directory and
+      work-tree.
+
+  Likewise, the following commands essentially function as a git alias:
+
+  ~$ xadf commit
+  ~$ xadf pull
+  ~$ xadf push
+  ~$ xadf checkout trunk
+
+OPTIONS
+
+Normal usage options:
+  --list-tracked/-l [PATH]  Prints all tracked files or optionally only tracked
+                            files in PATH, where PATH is relative to repository
+                            root directory (supposedly \$HOME)
+  --build-recipe/-r         Produces \$xadfconfig/recipe.txt by copying file
+                            \$xadfmods/default-recipe.txt
+  --build-xadfrc/-x         Produce \$xadfconfig/xadfrc by constructing from
+                            \$xadfmods/template-xadfrc
+  --heno                    Essentially an alias for:
+                              xadf remote set-url origin \
+                              git@github.com:heno72/xadf.git
+                            WARNING: This is for my personal needs. Don't use
+                            this if you don't have write access there! If so
+                            desired, you can change the option or the url to
+                            your own.
+  --help/-h                 Display this help text and then exit
+  --version/-v              Prints version and then exit
+
+xadf installation options:
+  --install/-i              Installs and sets up xa-dotfiles repositories to
+                            user's \$HOME
+  --seat DIR                Sets xadf git directory to DIR. Default: \$HOME/xadf
+                            Is meant to be used with option --install/-i and/or
+                            option --build-xadfrc/-x
+  --branch/-b BRANCH        Sets active git branch in \$HOME to BRANCH. If not
+                            specified, it is identical to run the script with
+                            option --branch/-b trunk        Default: trunk
+
+ENDOFFILE
+# $(printf "%s\n" "$install_seat"|sed 's#$HOME#\$HOME#')                          
+}
+
+# Option parser
+while :; do
+	case $1 in
+		# One-off options (immediately exit after matched)
+		-l | --list-tree )
+			# Note that it may also expect to be provided arguments, for example to
+			# specify which file or directory do we want to see (just like ls in some
+			# ways).
+			shift
+			xadf ls-tree --full-tree -r --name-only HEAD "$@"
+			exit 0
+			;;
+		-h | --help ) # show help text, then exit
+			xadf_show_help
+			exit 0
+			;;
+		-v | --version ) # show version, then exit
+			xadf_version
+			exit 0
+			;;
+		# Functions that modify script states but does not immediately break
+		-i | --install ) # performs xadf install
+			export install_mode=1
+			shift
+			;;
+		--seat ) # set git dir to DIR
+			if test -z "$2"
+			then
+				printf >&2 "Error: No directory is set\n\n"
+				xadf_show_help
+				exit 1
+			else
+				export install_seat="$2"
+				shift 2
+			fi
+			;;
+		-b | --branch ) # sets checked out branch
+			if test -z "$2"
+			then
+				printf >&2 "Error: No branch is set\n\n"
+				xadf_show_help
+				exit 2
+			else
+				export install_branch="$2"
+				shift 2
+			fi
+			;;
+		-r | --build-recipe ) # builds recipe.txt
+			export build_recipe=1
+			shift
+			;;
+		-x | --build-xadfrc ) # builds xadfrc
+			export build_xadfrc=1
+			shift
+			;;
+		--heno ) # changes upstream url
+			export is_heno=1
+			shift
+			;;
+		# general matching for all other cases
+		-* ) # invalid options
+			printf >&2 "Error: Invalid flag '%s'\n\n" "$1"
+			xadf_show_help
+			exit 1
+			;;
+		* ) # Practically a git alias with separate git dir
+			shift
+			git --git-dir="$xadfdir" --work-tree="$HOME" "$@"
+			break
+			;;
+	esac
+done
+
+# Main section
+# Check state variables, and decide what function to call.
+
+if test $install_mode -eq 1
+then
+	xadf_install
+fi
+
+if test $build_recipe -eq 1
+then
+	xadf_build_recipe
+fi
+
+if test $build_xadfrc -eq 1
+then
+	xadf_build_xadfrc
+fi
+
+if test $is_heno -eq 1
+then
+	xadf remote set-url origin git@github.com:heno72/xadf.git
+fi
+
