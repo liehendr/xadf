@@ -115,19 +115,21 @@ fi
 
 # 3. If --branch is set, checks out to branch NAME
 printf "[xadf]: Checks out to branch '%s'...\n" "$install_branch"
-git --git-dir="$install_seat" --work-tree="$HOME" checkout "$install_branch"
+# right now our working directory is ~/.xadf-tmp
+git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" checkout "$install_branch"
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
 	exit 8
 else
-	git --git-dir="$install_seat" --work-tree="$HOME" status -bs
+	# right now our working directory is ~/.xadf-tmp
+	git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" status -bs
 	printf "[xadf]: DONE\n"
 fi
 
 # 4. rsync all contents of $HOME/.xadf-tmp/ except '.git' to $HOME
 printf "[xadf]: Syncing repo to '%s'...\n" "$HOME"
-rsync --recursive --verbose --exclude {'.git','LICENSE','README.md'} "$HOME/.xadf-tmp/" "$HOME/"
+rsync --recursive --verbose --exclude '.git' "$HOME/.xadf-tmp/" "$HOME/"
 # if test $? -gt 0
 # then
 #	printf "[xadf]: FAIL\n"
