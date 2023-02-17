@@ -128,13 +128,13 @@ fi
 # 4. rsync all contents of $HOME/.xadf-tmp/ except '.git' to $HOME
 printf "[xadf]: Syncing repo to '%s'...\n" "$HOME"
 rsync --recursive --verbose --exclude {'.git','LICENSE','README.md'} "$HOME/.xadf-tmp/" "$HOME/"
-if test $? -gt 0
-then
-	printf "[xadf]: FAIL\n"
-	exit 9
-else
-	printf "[xadf]: DONE\n"
-fi
+# if test $? -gt 0
+# then
+#	printf "[xadf]: FAIL\n"
+#	exit 9
+#else
+#	printf "[xadf]: DONE\n"
+#fi
 
 # 5. Removes $HOME/.xadf-tmp/
 printf "[xadf]: Returns to '%s'...\n" "$HOME"
