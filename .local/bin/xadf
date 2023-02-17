@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version="2023-02-16"
+version="2023-02-17"
 is_heno=0
 build_recipe=0
 build_xadfrc=0
@@ -96,7 +96,7 @@ git clone --separate-git-dir="$install_seat" "$xadf_https_repo" ~/.xadf-tmp
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL! cleaning up...\n"
-	rm -rfv "$install_seat" ~/.xadf-tmp
+	rm -rfv "$install_seat" "$HOME/.xadf-tmp"
 	exit 6
 else
 	printf "[xadf]: DONE\n"
@@ -110,7 +110,7 @@ then
 	printf "[xadf]: FAIL\n"
 	exit 7
 else
-	printf "[xadf]: DONE\n"
+	printf "[xadf]: DONE, working directory is '%s'\n" "$PWD"
 fi
 
 # 3. If --branch is set, checks out to branch NAME
@@ -121,12 +121,13 @@ then
 	printf "[xadf]: FAIL\n"
 	exit 8
 else
+	git --git-dir="$install_seat" --work-tree="$HOME" status -bs
 	printf "[xadf]: DONE\n"
 fi
 
 # 4. rsync all contents of $HOME/.xadf-tmp/ except '.git' to $HOME
 printf "[xadf]: Syncing repo to '%s'...\n" "$HOME"
-rsync --recursive --verbose --exclude '.git' "$HOME/.xadf-tmp/" "$HOME/"
+rsync --recursive --verbose --exclude {'.git','LICENSE','README.md'} "$HOME/.xadf-tmp/" "$HOME/"
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
@@ -143,11 +144,11 @@ then
 	printf "[xadf]: FAIL\n"
 	exit 10
 else
-	printf "[xadf]: DONE\n"
+	printf "[xadf]: DONE, working directory is '%s'\n" "$PWD"
 fi
 
 printf "[xadf]: Deletes temporary working directory '~/.xadf-tmp'...\n"
-rm -rfv "~/.xadf-tmp"
+rm -rfv "$HOME/.xadf-tmp"
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
@@ -175,14 +176,14 @@ test ! -f "$HOME/.bashrc" && cp /etc/skel/.bashrc ~/.bashrc
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "[xadf]: Ensures xadfrc is sourced in ~.bashrc...\n"
+printf "[xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
 sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$"
 test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
 if test $? -gt 0
 then
 	printf "[xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "[xadf]: xadfrc is appended to ~.bashrc...DONE\n"
+	printf "[xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
 fi
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
