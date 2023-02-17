@@ -193,7 +193,7 @@ test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
 # 11. If no recipe.txt is present, builds recipe.txt with xadf -r
 test ! -f ~/.config/recipe.txt && xadf_build_recipe && export build_recipe=0
 
-printf "[xadf]: Installation of xadf is completed, checked out branch is '%s'\n"
+printf "[xadf]: Installation of xadf is completed, checked out branch is '%s'\n" "$install_branch"
 printf "[xadf]: You may want to source your ~/.bashrc\n"
 }
 
