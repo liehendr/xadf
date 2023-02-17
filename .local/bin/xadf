@@ -96,7 +96,7 @@ git clone --separate-git-dir="$install_seat" "$xadf_https_repo" ~/.xadf-tmp
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL! cleaning up...\n"
-	rm -rfv "$install_seat" "$HOME/.xadf-tmp"
+	rm -rf "$install_seat" "$HOME/.xadf-tmp"
 	exit 6
 else
 	printf "[xadf]: DONE\n"
@@ -115,26 +115,28 @@ fi
 
 # 3. If --branch is set, checks out to branch NAME
 printf "[xadf]: Checks out to branch '%s'...\n" "$install_branch"
-git --git-dir="$install_seat" --work-tree="$HOME" checkout "$install_branch"
+# right now our working directory is ~/.xadf-tmp
+git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" checkout "$install_branch"
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
 	exit 8
 else
-	git --git-dir="$install_seat" --work-tree="$HOME" status -bs
-	printf "[xadf]: DONE\n"
+	# right now our working directory is ~/.xadf-tmp
+	printf "[xadf]: "
+	git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" status -bs
 fi
 
 # 4. rsync all contents of $HOME/.xadf-tmp/ except '.git' to $HOME
 printf "[xadf]: Syncing repo to '%s'...\n" "$HOME"
-rsync --recursive --verbose --exclude {'.git','LICENSE','README.md'} "$HOME/.xadf-tmp/" "$HOME/"
-if test $? -gt 0
-then
-	printf "[xadf]: FAIL\n"
-	exit 9
-else
-	printf "[xadf]: DONE\n"
-fi
+rsync --recursive --verbose --exclude '.git' "$HOME/.xadf-tmp/" "$HOME/"
+# if test $? -gt 0
+# then
+#	printf "[xadf]: FAIL\n"
+#	exit 9
+#else
+#	printf "[xadf]: DONE\n"
+#fi
 
 # 5. Removes $HOME/.xadf-tmp/
 printf "[xadf]: Returns to '%s'...\n" "$HOME"
@@ -148,7 +150,7 @@ else
 fi
 
 printf "[xadf]: Deletes temporary working directory '~/.xadf-tmp'...\n"
-rm -rfv "$HOME/.xadf-tmp"
+rm -rf "$HOME/.xadf-tmp"
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
@@ -190,6 +192,9 @@ fi
 test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
 # 11. If no recipe.txt is present, builds recipe.txt with xadf -r
 test ! -f ~/.config/recipe.txt && xadf_build_recipe && export build_recipe=0
+
+printf "[xadf]: Installation of xadf is completed, checked out branch is '%s'\n"
+printf "[xadf]: You may want to source your ~/.bashrc\n"
 }
 
 xadf_version(){
