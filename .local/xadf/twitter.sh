@@ -22,8 +22,8 @@ then
   cd $ggcraftcfgorigpwd
 fi
 
-echo "[ggcraftcfg]: Constructing configuration file \$xadf/custom/twitter.cfg"
-cat <<EOF > $xadf/custom/twitter.cfg
+echo "[ggcraftcfg]: Constructing configuration file \$HOME/.config/xadf/twitter.cfg"
+cat <<EOF > $HOME/.config/xadf/twitter.cfg
 #!/bin/bash
 ## Configuration file for ggcraft
 
@@ -46,8 +46,8 @@ EOF
 }
 
 # Source twitter.cfg so we can construct config.json
-[ ! -f $xadf/custom/twitter.cfg ] && ggcraftcfg
-source $xadf/custom/twitter.cfg
+[ ! -f $HOME/.config/xadf/twitter.cfg ] && ggcraftcfg
+source $HOME/.config/xadf/twitter.cfg
 
 gg(){
 gallery-dl -c "$ggcfg" --write-metadata $@
