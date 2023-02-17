@@ -96,7 +96,7 @@ git clone --separate-git-dir="$install_seat" "$xadf_https_repo" ~/.xadf-tmp
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL! cleaning up...\n"
-	rm -rf "$install_seat" ~/.xadf-tmp
+	rm -rfv "$install_seat" ~/.xadf-tmp
 	exit 6
 else
 	printf "[xadf]: DONE\n"
@@ -147,7 +147,7 @@ else
 fi
 
 printf "[xadf]: Deletes temporary working directory '~/.xadf-tmp'...\n"
-rm -rf "~/.xadf-tmp"
+rm -rfv "~/.xadf-tmp"
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
@@ -186,9 +186,9 @@ else
 fi
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
-test ! -f ~/.config/xadfrc && "$0" -x
+test ! -f ~/.config/xadfrc && xadf_build_xadfrc
 # 11. If no recipe.txt is present, builds recipe.txt with xadf -r
-test ! -f ~/.config/recipe.txt && "$0" -r
+test ! -f ~/.config/recipe.txt && xadf_build_recipe
 }
 
 xadf_version(){
@@ -271,7 +271,7 @@ while :; do
 			# specify which file or directory do we want to see (just like ls in some
 			# ways).
 			shift
-			"$0" ls-tree --full-tree -r --name-only HEAD "$@"
+			test -n "$xadfdir" && git --git-dir="$xadfdir" --work-tree="$HOME" ls-tree --full-tree -r --name-only HEAD "$@"
 			exit 0
 			;;
 		-h | --help ) # show help text, then exit
@@ -362,8 +362,8 @@ if test $is_heno -eq 1
 then
 	if test -n "$xadfdir"
 	then # xadfdir is set, xadf will call itself as an alias
-		"$0" remote set-url origin git@gitlab.com:heno72/xadf.git
+		"$0" remote set-url origin $xadf_https_repo
 	else # is set in installation, will call the raw commands
-		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin git@gitlab.com:heno72/xadf.git
+		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin $xadf_https_repo
 	fi
 fi
