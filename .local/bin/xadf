@@ -186,9 +186,9 @@ else
 fi
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
-test ! -f ~/.config/xadfrc && xadf_build_xadfrc
+test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
 # 11. If no recipe.txt is present, builds recipe.txt with xadf -r
-test ! -f ~/.config/recipe.txt && xadf_build_recipe
+test ! -f ~/.config/recipe.txt && xadf_build_recipe && export build_recipe=0
 }
 
 xadf_version(){
