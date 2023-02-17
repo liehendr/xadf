@@ -5,24 +5,6 @@
 
 function caterr { cat "$@" >&2; }
 function echoerr { echo "$@" >&2; }
-function xadf {
-case $1 in
-load)
-  source $xadf/head.sh
-  ;;
-update)
-  local stpwd="$(pwd)"
-  cd "$xadf"
-  git pull
-  cd "$stpwd"
-  ;;
-*)
-  echoerr "Error! No Arguments!"
-  echoerr "Accepted arguments are:"
-  echoerr "  load   : reload xadf's head.sh"
-  echoerr "  update : update xadf from git"
-esac
-}
 
 ########################################################################
 ## Do some calculation with bc
