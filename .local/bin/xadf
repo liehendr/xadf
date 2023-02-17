@@ -57,7 +57,7 @@ test ! -d ~/.local/xadf && mkdir ~/.local/xadf
 xadf_build_recipe(){
 # builds recipe
 printf "[xadf]: Generate recipe...\n"
-cat ~/.local/xadf/default-recipe.txt > ~/.config/xadf/recipe.txt
+cat ~/.local/xadf/templates/default-recipe.txt > ~/.config/xadf/recipe.txt
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
@@ -70,7 +70,7 @@ fi
 xadf_build_xadfrc(){
 # builds xadfrc
 printf "[xadf]: Generate xadfrc...\n"
-. ~/.local/xadf/template-xadfrc | sed "s#$HOME#\$HOME#" > ~/.config/xadf/xadfrc
+. ~/.local/xadf/templates/template-xadfrc | sed "s#$HOME#\$HOME#" > ~/.config/xadf/xadfrc
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
