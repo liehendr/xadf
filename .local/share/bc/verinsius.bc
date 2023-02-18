@@ -1,44 +1,60 @@
 #/usr/bin/bc -lq
-# A set of functions to convert unix time to verinsius dating system.
-# Can convert unix stamp (treating it like TAI) into cl stamp in sternus.
+/********************************************
+  bc program:	verinsius.bc
+  author:	Hendrik Lie
+  e-mail:	hendriklie72@gmail.com
+  comments:	- published under the GPL
+	A set of functions to convert unix time to verinsius dating system.
+    Can convert unix stamp (treating it like TAI) into cl stamp in sternus.
+********************************************/
 
-# per sternus' technical definition,
-# we calculate them to the 30th decimal points
+/********************************************
+ per sternus' technical definition,
+ we calculate them to the 30th decimal points
+********************************************/
 scale=30
 
-# etos is etoan sternus, whose epoch is 0.0CL
-# etos_offset is an offset between 0.0CL to UTC Epoch
-# d_postcl=25822501.4684011
-# gsd_offset=2209186800
-# day_sc=86400
-# etos_offset=(d_postcl*day_sc+gsd_offset)
-# therefore, instead of
-# etos_offset=2228854940069.8550400
-# we have
-# etos_offset = 2233273313669.8550400
-# Also to match our calculator in Google Sheets, we have to add by
-# 60 seconds, so instead we calculating offset with:
-# etos_offset=(d_postcl*day_sc+gsd_offset+60)
-# which means we have the offset as:
+/********************************************
+ etos is etoan sternus, whose epoch is 0.0CL
+ etos_offset is an offset between 0.0CL to UTC Epoch
+ d_postcl=25822501.4684011
+ gsd_offset=2209186800
+ day_sc=86400
+ etos_offset=(d_postcl*day_sc+gsd_offset)
+ therefore, instead of
+ etos_offset=2228854940069.8550400
+ we have
+ etos_offset = 2233273313669.8550400
+ Also to match our calculator in Google Sheets, we have to add by
+ 60 seconds, so instead we calculating offset with:
+ etos_offset=(d_postcl*day_sc+gsd_offset+60)
+ which means we have the offset as:
+********************************************/
 etos_offset = 2233273313729.8550400
 
 # the value of a sternus in seconds
 sternus = (11398373422/9192631770)
+
 # tosit, 'a day in aucafidus in sternus unit
 tosit_st = 2^16
+
 # 'a day' in aucafidus, in seconds
 tosit_sc = (sternus*tosit_st)
 
 # a full revolution of aucafidus in tosit
 cl_to = 407.14
+
 # a full revolution of aucafidus in sternus
 cl_st = cl_to * tosit_st
+
 # a full revolution of aucafidus in seconds
 cl_sc = cl_st * sternus
 
-# convert unix time stamp into etos_stamp, that is the amount of sternus
-# elapsed since 0.0CL
-# input is in seconds
+/********************************************
+ convert unix time stamp into etos_stamp, that is the amount of sternus
+ elapsed since 0.0CL
+ input is in seconds
+********************************************/
 define unix2etos(sc) {
 etos_stamp = ( ( sc + etos_offset) / sternus )
 # etos_stamp is etoan timestamp in sternus
@@ -46,8 +62,10 @@ etos_stamp = ( ( sc + etos_offset) / sternus )
 return(etos_stamp)
 }
 
-# convert etos_stamp into unix time stamp
-# input is in sternus
+/********************************************
+ convert etos_stamp into unix time stamp
+ input is in sternus
+********************************************/
 define etos2unix(st) {
 unix_stamp = ( st * sternus - etos_offset )
 # unix stamp is in seconds
@@ -74,4 +92,3 @@ etos = unix2etos(nx)
 cl = (etos/tosit_st/cl_to)
 return(cl)
 }
-

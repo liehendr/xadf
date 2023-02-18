@@ -1,6 +1,12 @@
 #/bin/bash
+############################################
+#  bash script:	verinsius.sh
+#  author:	Hendrik Lie
+#  e-mail:	hendriklie72@gmail.com
+#  comments:	- published under the GPL
 # A company for verinsius.bc, where we demonstrates how to use the file in a
 # bash script
+############################################
 
 # bc dir
 bcd="$HOME/.local/share/bc"
