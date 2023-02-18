@@ -15,11 +15,11 @@ However the problem remains on how to include [`LICENSE`](./LICENSE) and `README
 
 The following sections will describe basic idea of how to set up bare git and alias method, how to deal with `LICENSE` and `README.md`, and my actual implementation of bare git and alias method.
 
-## Manage Dotfiles with Bare Git and Alias Method - Basic Idea
+# Manage Dotfiles with Bare Git and Alias Method - Basic Idea
 
 Basically, to manage dotfiles with git bare methods, we have to set up a bare repository, and use a different work-tree. Then to replicate it, we clone with `--separate-git-dir` argument to a temporary directory. Then we rsync (except for `.git` folder) to home directory, and later remove the temporary directory.
 
-### Setup
+## Setup
 
 The basic idea is to initialize a bare git repository over an existing (or fresh) home directory, then set up an alias (ideally add them to `.bashrc` or `.bash_aliases`), and add a remote for us to push to.
 
@@ -29,7 +29,7 @@ alias xadf='git --git-dir=$HOME/xadf/ --work-tree=$HOME'
 xadf remote add origin git@gitlab.com:heno72/xadf.git
 ```
 
-### Replication
+## Replication
 
 If the repository is already been set up, we can just clone the repo with separate git directory. Initially, we will need to clone the work tree to a temporary directory, and then sync the content of the temporary directory to our home directory. Later we can just delete the temporary directory.
 
@@ -39,7 +39,7 @@ rsync --recursive --verbose --exclude '.git' .xadf-tmp/ $HOME/
 rm --recursive .xadf-tmp
 ```
 
-### Configuration
+## Configuration
 
 Since there would be a ton of files in a real home directory, having them shown all the time will be a nuisance and a straightforward distraction. Here we configure git to not show untracked files.
 
@@ -50,7 +50,7 @@ xadf config status.showUntrackedFiles no
 xadf remote set-url origin git@gitlab.com:heno72/xadf-gb.git
 ```
 
-### Usage
+## Usage
 
 After setting up, we can just use the alias to substitute `git` command in our home directory. We can use it like any normal git command. Therefore eliminating collision with real git repository under home. Also typical `git` commands would not work at our home root since it does not contain `~/.git` directory.
 
@@ -81,7 +81,7 @@ master < trunk <> termux
 ```
 > only merge `trunk` to `master`, `termux`, or `laptop`, or from `termux` or `laptop` to `trunk`, but never merge `master` to `trunk`.
 
-## Implementing Bare Git with Alias method as a helper script
+# Implementing Bare Git with Alias method as a helper script
 
 Instead of just using alias, and do all of the steps described in previous section manually, I want to have them be done automatically with a script. The goal is to have a single script that will handle installation (cloning repo with separate git directory, checking out to correct branch, syncing repo contents to home directory, set up helper configuration files so we can use the tool on the next login or new terminal sessions), and can function as an alias to git with separate git directory (essentially an alias for `git --git-dir=$xadfdir --work-tree=$HOME`, where `$xadfdir` is declared in the aforementioned helper configuration file) for day to day use.
 
@@ -89,7 +89,7 @@ Since I already have working `.bashrc` configurations in most of my machines and
 
 The following subsections will outline the basic directory structures, specification of configuration files and config constructor files, and specification of `xadf` itself. We will also outline installation, uninstallation, and usage.
 
-### xadf Directory Structure
+## xadf Directory Structure
 
 A minimal `xadf` would inhabit the following locations, and be populated with the following files:
 
@@ -140,7 +140,7 @@ Therefore the most important parts of a minimal `xadf` environment are:
 - a valid `~/.config/xadf/xadfrc` configuration
 - an usable `~/.config/xadf/recipe.txt`
 
-### Technical Specification of xadfrc
+## Technical Specification of xadfrc
 
 ```
 File     : xadfrc
@@ -171,7 +171,7 @@ On parsing `template-xadfrc`, we can escape all `$` in the file, prepend and app
 
 The `sed` command must use double quotes instead of single quotes so the `$HOME` part will undergo string expansion, before we substitute the string. Therefore the value of `$HOME` (eg. /home/username/) will be replaced with literal string `$HOME`.
 
-### Technical Specification of recipe.txt
+## Technical Specification of recipe.txt
 
 ```
 File: recipe.txt
@@ -192,9 +192,9 @@ The content of `$xadfmods/templates/default-recipe.txt` that is used to build de
 1. if present, sources `$xadfmods/bash_aliases`
 2. if present, sources `$xadfmods/bash_functions`
 
-### Technical Specification of xadf
+## Technical Specification of xadf
 
-#### Summary
+### Summary
 
 This is essentially our dotfiles repo controller. It can also function as an installer script: downloading the entire repo, sets up alias, append source directive to .bashrc, and syncs all contents from dotfiles to `$HOME`. When called, it can also function as an alias for git with separate home dir, where the git directory is set at either `$HOME/xadf` or somewhere that is specified with `--seat` at install time.
 
@@ -204,7 +204,7 @@ This is essentially our dotfiles repo controller. It can also function as an ins
 
 > **WARNING:** By default, it will sync all contents of the repository (obviously excluding `.git`) to `$HOME`. If it is undesirable, back up your files when necessary, or comment out the rsync command from `xadf` script directly.
 
-#### Options
+### Options
 
 The following are its native options:
 
@@ -237,7 +237,7 @@ Installation-specific options:
 **-b NAME / --branch NAME**
 : checks out to branch NAME. Without this argument, it is identical to call the program with option `--branch master`
 
-#### Install actions
+### Install actions
 
 The use of `-i` option when executing `xadf` should perform the following actions:
 
@@ -254,7 +254,7 @@ The use of `-i` option when executing `xadf` should perform the following action
 11. Builds `xadfrc` from `$xadfmods/templates/template-xadfrc` (honors `--seat` option)
 12. If `recipe.txt` is absent, builds `recipe.txt` from `$xadfmods/templates/default-recipe.txt`
 
-#### Code Design
+### Code Design
 
 1. Define state variables:
 
@@ -317,7 +317,7 @@ install_branch=master
    c. if `build_xadfrc=1`, then calls `xadf_build_xadfrc()`
    d. if `is_heno=1`, then runs `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`
 
-### Installation
+## Installation
 
 Download xadf script [here](https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf), then make it executable. Place it somewhere in your `$PATH`. Ideally save it as `$HOME/.local/bin/xadf` so it will be replaced with the latest version of `xadf` from our git repository. If `$HOME/.local/bin/` is not in your path, you can actually run the following command:
 
@@ -335,7 +335,7 @@ Option `--seat DIR` will change default git directory from `~/xadf` to DIR (of y
 
 Option `--branch BRANCH` will change checked out branch from default branch to branch BRANCH (of your choice). The branch must already exist in your repository.
 
-### Uninstallation
+## Uninstallation
 
 In case we want to uninstall `xadf`, all we have to do is to remove:
 
