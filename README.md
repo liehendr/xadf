@@ -3,11 +3,13 @@
 My dotfiles repository, managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](.local/bin/xadf)) that also function as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
 Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)) either for my use or just for fun.
 
+> **Note for forkers:** It is not recommended to use my setup right away. You should at least inspect the scripts and configuration files of my setup. Maybe you'd be more interested in the main `xadf` script, how it manages dotfiles at home directory, what to change if you're forking this repository (or `xadf` specifically) or its installation steps. In that case you may wish to jump to [Code Design of xadf](#code-design-of-xadf) for an overview of `xadf` code structure, [Installation](#installation-of-xadf) on how to install `xadf` and use it to manage your dotfiles with git, or even reading through `xadf`'s [technical specifications](#implementing-bare-git-with-alias-method-as-a-helper-script).
+
 [TOC]
 
 # Introduction
 
-Since 6 February 2023, I've been looking for a way to conveniently manage my dotfiles with git version control. The question remains on how to properly do it? The options are either using [stow](https://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html), or bare git and alias method (see [archlinux wiki page on dotfiles](https://wiki.archlinux.org/title/Dotfiles).
+Since 6 February 2023, I've been looking for a way to conveniently manage my dotfiles with git version control. The question remains on how to properly do it? The options are either using [stow](https://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html), or bare git and alias method (see [archlinux wiki page on dotfiles](https://wiki.archlinux.org/title/Dotfiles)).
 
 After testing the `stow` methods in 13 February 2023, I concluded that it provides only marginal improvements at the expense of symlinking in home directory and complicated setup (manually copy config files and recreate the directory tree for each stow packages). The bare git and alias method seems simpler, directly work at home directory instead of a separate folder, avoids symlinking, and we can selectively decide which file to track. ([The set up](https://gitlab.com/Siilwyn/my-dotfiles/tree/master/.my-dotfiles)) seems to be simpler too.
 
@@ -23,7 +25,7 @@ Basically, to manage dotfiles with git bare methods, we have to set up a bare re
 
 The basic idea is to initialize a bare git repository over an existing (or fresh) home directory, then set up an alias (ideally add them to `.bashrc` or `.bash_aliases`), and add a remote for us to push to.
 
-```
+```bash
 git init --bare $HOME/xadf
 alias xadf='git --git-dir=$HOME/xadf/ --work-tree=$HOME'
 xadf remote add origin git@gitlab.com:heno72/xadf.git
@@ -33,7 +35,7 @@ xadf remote add origin git@gitlab.com:heno72/xadf.git
 
 If the repository is already been set up, we can just clone the repo with separate git directory. Initially, we will need to clone the work tree to a temporary directory, and then sync the content of the temporary directory to our home directory. Later we can just delete the temporary directory.
 
-```
+```bash
 git clone --separate-git-dir=$HOME/xadf https://gitlab.com/heno72/xadf.git .xadf-tmp
 rsync --recursive --verbose --exclude '.git' .xadf-tmp/ $HOME/
 rm --recursive .xadf-tmp
@@ -45,7 +47,7 @@ Since there would be a ton of files in a real home directory, having them shown 
 
 Additionally, since we are cloning from https link, we may need to change the link to ssh clone link. Otherwise we will have to type our credentials on every push operation. Make sure to set up ssh keys on the machine and add it to your git account beforehand.
 
-```
+```bash
 xadf config status.showUntrackedFiles no
 xadf remote set-url origin git@gitlab.com:heno72/xadf-gb.git
 ```
@@ -54,7 +56,7 @@ xadf remote set-url origin git@gitlab.com:heno72/xadf-gb.git
 
 After setting up, we can just use the alias to substitute `git` command in our home directory. We can use it like any normal git command. Therefore eliminating collision with real git repository under home. Also typical `git` commands would not work at our home root since it does not contain `~/.git` directory.
 
-```
+```bash
 xadf status
 xadf add .gitconfig
 xadf commit -m 'Add gitconfig'
@@ -75,10 +77,12 @@ As long as we work with the `trunk` branch and never merge `master` there, we wi
 Though, honestly I would advise to make shared configs on `trunk` and later merge them to other branches and branch `master`.
 
 Therefore, we can visualize the merge direction like this:
+
 ```
 master < trunk <> termux
                <> laptop
 ```
+
 > only merge `trunk` to `master`, `termux`, or `laptop`, or from `termux` or `laptop` to `trunk`, but never merge `master` to `trunk`.
 
 # Implementing Bare Git with Alias method as a helper script
@@ -157,15 +161,15 @@ Location : ~/.config/xadf/
 6. else sources `$xadfconfig/recipe.txt`
 
 ```
-File: template-xadfrc
-Location: ~/.local/xadf/templates/
+File     : template-xadfrc
+Location : ~/.local/xadf/templates/
 ```
 
 **Description:** Not exactly `xadfrc`, but a template to be called by `xadf` script and produces `xadfrc`. It is almost identical with `xadfrc` except `$` sign is carefully escaped. For `$xadfdir` definition, it would come with a template or pattern that can be parsed by `xadf` to produce correct git directory of the dotfiles repo.
 
 On parsing `template-xadfrc`, we can escape all `$` in the file, prepend and append `CAT <<EOF` and `EOF` to the template text, and then source it from terminal (or script) while piping it to `sed`. For example:
 
-```
+```bash
 ~$ . template-xadfrc|sed "s#$HOME#$\HOME#"
 ```
 
@@ -174,8 +178,8 @@ The `sed` command must use double quotes instead of single quotes so the `$HOME`
 ## Technical Specification of recipe.txt
 
 ```
-File: recipe.txt
-Location: ~/.config/xadf/
+File     : recipe.txt
+Location : ~/.config/xadf/
 ```
 
 **Description:** A text file sourced by `xadfrc` during login or on a new terminal session, whose sole responsibility is to load select bash functions in `$xadfmods` directory. Must contain valid bash syntax.
@@ -183,8 +187,8 @@ Location: ~/.config/xadf/
 It is automatically generated by `xadf` during install, or is reset when `xadf -r` is run, or is built from `default-recipe.txt`. Though later can be configured to load other modules in `$xadfmods`. Due to its nature on being sourced by `xadfrc` that is itself sourced from `.bashrc`, you can actually use it as an extension of `.bashrc`.
 
 ```
-File: default-recipe.txt
-Location: ~/.local/xadf/templates/
+File     : default-recipe.txt
+Location : ~/.local/xadf/templates/
 ```
 
 The content of `$xadfmods/templates/default-recipe.txt` that is used to build default `recipe.txt` should at least perfomrs the following actions:
@@ -254,13 +258,13 @@ The use of `-i` option when executing `xadf` should perform the following action
 11. Builds `xadfrc` from `$xadfmods/templates/template-xadfrc` (honors `--seat` option)
 12. If `recipe.txt` is absent, builds `recipe.txt` from `$xadfmods/templates/default-recipe.txt`
 
-# Code Design
+# Code Design of xadf
 
 Following the specifications of `xadf` and its supporting configurations, we can then outline how the code should be structured.
 
 1. Define state variables:
 
-```
+```bash
 version=<version number> # (for use with --version)
 is_heno=0
 build_recipe=0
@@ -272,7 +276,7 @@ xadf_https_repo="https://gitlab.com/heno72/xadf.git"
 xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
 ```
    
-   **Note for forkers:** you may want to change the values of `xadf_https_repo` and `xadf_ssh_repo` to point to your forked repository instead of mine.
+   > **Note for forkers:** you may want to change the values of `xadf_https_repo` and `xadf_ssh_repo` to point to your forked repository instead of mine.
 
 2. Define function `xadf_build_recipe()`
 
@@ -336,7 +340,7 @@ xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
    3. if `build_xadfrc=1`, then calls `xadf_build_xadfrc()`
    4. if `is_heno=1`, then runs `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`
 
-# Installation
+# Installation of xadf
 
 Download xadf script [here](https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf), then make it executable. Place it somewhere in your `$PATH`. Ideally save it as `$HOME/.local/bin/xadf` so it will be replaced with the latest version of `xadf` from our git repository. If `$HOME/.local/bin/` is not in your path, you can actually run the following command:
 
@@ -360,7 +364,7 @@ If `xadfrc` is not created during installation, or if it is damaged at later dat
 
 You can actually move the `$xadfdir` location from default `~/xadf` or any previously set directory (eg. moving it to `~/.dotfiles` or `~/.xadf`), and then update `xadfrc` with the following commands:
 
-```
+```bash
 # Move git directory (eg. from ~/xadf to ~/.dotfiles)
 mv ~/xadf ~/.dotfiles
 
@@ -379,7 +383,7 @@ xadf -x --seat ~/.dotfiles
 xadf status -sb
 ```
 
-# Uninstallation
+# Uninstallation of xadf
 
 In case we want to uninstall `xadf`, all we have to do is to remove:
 
@@ -391,7 +395,7 @@ In case we want to uninstall `xadf`, all we have to do is to remove:
 
 Note that the above list is not comprehensive, and will only uninstall xadf and its helper resources. Configuration files of other programs will remain. It should be possible to delete every file git tracks in your home directory by piping `xadf -l` output to `xargs rm -rf`:
 
-```
+```bash
 xadf -l | xargs rm -rf
 ```
 
@@ -399,7 +403,7 @@ Warning, do so at your own risk, and only if you know what you're doing.
 
 And then remove a line in `~/.bashrc` that sources `~/.config/xadf/xadfrc`. Also do:
 
-```
+```bash
 unset xadfconfig xadfmods xadfdir
 ```
 
