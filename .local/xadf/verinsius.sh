@@ -3,7 +3,7 @@
 # bash script
 
 # bc dir
-bcd="~/.local/share/bc"
+bcd="$HOME/.local/share/bc"
 
 bcvr(){
 bc -lq $bcd/verinsius.bc $@
