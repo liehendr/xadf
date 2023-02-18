@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version="2023-02-17"
+version="2023-02-18"
 is_heno=0
 build_recipe=0
 build_xadfrc=0
@@ -180,7 +180,7 @@ test ! -f "$HOME/.bashrc" && cp /etc/skel/.bashrc ~/.bashrc
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
 printf "[xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
-sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$"
+sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
 test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
 if test $? -gt 0
 then
