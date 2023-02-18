@@ -237,7 +237,7 @@ Installation-specific options:
 **-b NAME / --branch NAME**
 : checks out to branch NAME. Without this argument, it is identical to call the program with option `--branch master`
 
-### Install actions
+### Installer
 
 The use of `-i` option when executing `xadf` should perform the following actions:
 
@@ -254,7 +254,9 @@ The use of `-i` option when executing `xadf` should perform the following action
 11. Builds `xadfrc` from `$xadfmods/templates/template-xadfrc` (honors `--seat` option)
 12. If `recipe.txt` is absent, builds `recipe.txt` from `$xadfmods/templates/default-recipe.txt`
 
-### Code Design
+# Code Design
+
+Following the specifications of `xadf` and its supporting configurations, we can then outline how the code should be structured.
 
 1. Define state variables:
 
@@ -265,20 +267,36 @@ build_recipe=0
 build_xadfrc=0
 install_mode=0
 install_seat="$HOME/xadf"
-install_branch=master
+install_branch="trunk"
+xadf_https_repo="https://gitlab.com/heno72/xadf.git"
+xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
 ```
+   
+   **Note for forkers:** you may want to change the values of `xadf_https_repo` and `xadf_ssh_repo` to point to your forked repository instead of mine.
 
 2. Define function `xadf_build_recipe()`
 
-   > See [Technical specification of recipe.txt]()
+   > See [Technical specification of recipe.txt](#technical-specification-of-recipetxt)
+
+   This function's sole purpose is to generate `recipe.txt` from our template. It does so by using program `cat`.
 
 3. Define function `xadf_build_xadfrc()`
 
-   > See [Technical specification of xadfrc]()
+   > See [Technical specification of xadfrc](#technical-specification-of-xadfrc)
+
+   This function's sole purpose is to generate a valid and usable `xadfrc` file to be sourced from `.bashrc`. The template will produce a valid `xadfrc` that points to the correct bare git repo directory (declare `$xadfdir`, however during installation it is the value of `xadf` internal variable `$install_seat`).
+
+   It will display the `$xadfdir` in `$HOME/xadf` format instead of `/home/username/xadf` by the use of sed via pipeline:
+   
+   > `. ~/.local/xadf/templates/template-xadfrc | sed "s#$HOME#\$HOME#" > ~/.config/xadf/xadfrc`
 
 4. Define function `xadf_install()`
 
-   > See [Install actions]()
+   > See [Installer](#installer)
+
+   This is by far the most complicated function of the code.
+   For almost each steps it will test whether the action is completed succesfully.
+   It will break when it encountered errors, and possibly clean up to not interfere up with future installation attempt.
 
 5. Define function `xadf_version()`
 
@@ -299,12 +317,13 @@ install_branch=master
    For option `-v / --version`, runs `xadf_version()` and then exit.
 
    For all other native `xadf` options, they will only be used to manipulate state variables.
-   a. `-i / --image` changes `install_mode=1`
-   b. `--seat` changes `$install_seat` to DIR
-   c. `-b / --branch` changes `$install_branch` to NAME
-   d. `-r / --build-recipe` changes `build_recipe=1`
-   e. `-x / --build-xadfrc` changes `build_xadfrc=1`
-   f. `--heno` changes `is_heno=1`
+
+   - `-i / --image` changes `install_mode=1`
+   - `--seat` changes `$install_seat` to DIR
+   - `-b / --branch` changes `$install_branch` to NAME
+   - `-r / --build-recipe` changes `build_recipe=1`
+   - `-x / --build-xadfrc` changes `build_xadfrc=1`
+   - `--heno` changes `is_heno=1`
 
    When no native `xadf` options are provided, run: `git --git-dir="$xadfdir" --work-tree="$HOME" "$@"`. Note that it should fail if `$xadfdir` is not set (that is, no xadf installed yet). It will expect all arguments following it to be git arguments, so treat it just like you would a `git` command.
 
@@ -312,12 +331,12 @@ install_branch=master
 
    Check state variables, and decide what function to call.
 
-   a. if `install_mode=1`, then calls `xadf_install()`
-   b. if `build_recipe=1`, then calls `xadf_build_recipe()`
-   c. if `build_xadfrc=1`, then calls `xadf_build_xadfrc()`
-   d. if `is_heno=1`, then runs `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`
+   1. if `install_mode=1`, then calls `xadf_install()`
+   2. if `build_recipe=1`, then calls `xadf_build_recipe()`
+   3. if `build_xadfrc=1`, then calls `xadf_build_xadfrc()`
+   4. if `is_heno=1`, then runs `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`
 
-## Installation
+# Installation
 
 Download xadf script [here](https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf), then make it executable. Place it somewhere in your `$PATH`. Ideally save it as `$HOME/.local/bin/xadf` so it will be replaced with the latest version of `xadf` from our git repository. If `$HOME/.local/bin/` is not in your path, you can actually run the following command:
 
@@ -331,11 +350,36 @@ Then run:
 xadf -i [--seat DIR] [--branch BRANCH] [--heno]
 ```
 
-Option `--seat DIR` will change default git directory from `~/xadf` to DIR (of your choice, eg. `~/.xadf`).
+Option `--seat DIR` will change default git directory from `~/xadf` to DIR. DIR can be any directory under home of your choice, (eg. `~/.xadf` or `~/.dotfiles`).
 
 Option `--branch BRANCH` will change checked out branch from default branch to branch BRANCH (of your choice). The branch must already exist in your repository.
 
-## Uninstallation
+As we are downloading from https git clone url, we must provide our credentials on every push. This is generally undesirable. Provided that we already set up ssh keys in our environment, we can use option `--heno` to change the link from https clone url to git ssh clone url.
+
+If `xadfrc` is not created during installation, or if it is damaged at later date, you can use `xadf -x` or `xadf --build-xadfrc` to rebuild it. If you set up a custom git DIR with `--seat DIR`, then you may need to also supply it when building `xadfrc`, or else it would point to wrong `$xadfdir` location.
+
+You can actually move the `$xadfdir` location from default `~/xadf` or any previously set directory (eg. moving it to `~/.dotfiles` or `~/.xadf`), and then update `xadfrc` with the following commands:
+
+```
+# Move git directory (eg. from ~/xadf to ~/.dotfiles)
+mv ~/xadf ~/.dotfiles
+
+# To prevent xadf from getting confused of previous xadf-specific environment variables
+unset xadfdir
+
+# Build xadfrc to use new git dir location
+xadf --build-xadfrc --seat ~/.dotfiles
+# or
+xadf -x --seat ~/.dotfiles
+
+# Source your .bashrc
+. ~/.bashrc
+
+# Check whether everything is succesfully configured or not
+xadf status -sb
+```
+
+# Uninstallation
 
 In case we want to uninstall `xadf`, all we have to do is to remove:
 
@@ -344,6 +388,14 @@ In case we want to uninstall `xadf`, all we have to do is to remove:
 .local/xadf/
 .config/xadf/
 ```
+
+Note that the above list is not comprehensive, and will only uninstall xadf and its helper resources. Configuration files of other programs will remain. It should be possible to delete every file git tracks in your home directory by piping `xadf -l` output to `xargs rm -rf`:
+
+```
+xadf -l | xargs rm -rf
+```
+
+Warning, do so at your own risk, and only if you know what you're doing.
 
 And then remove a line in `~/.bashrc` that sources `~/.config/xadf/xadfrc`. Also do:
 
