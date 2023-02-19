@@ -1,6 +1,6 @@
 # Welcome to ~/.* managed with xadf (xeno authority dotfiles) !
 
-![Obligatory screenshot](pics/screenshot-2023-02-19_15-30-30.png)
+![Obligatory screenshot](pics/screenshot.png)
 
 My dotfiles repository, managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](.local/bin/xadf)) that also function as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
 Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)) either for my use or just for fun.
