@@ -80,14 +80,41 @@ As long as we work with the `trunk` branch and never merge `master` there, we wi
 
 Though, honestly I would advise to make shared configs on `trunk` and later merge them to other branches and branch `master`.
 
-Therefore, we can visualize the merge direction like this:
+Therefore, we can visualize the branching direction like this:
 
+```mermaid
+flowchart TD
+    A[Master] --> B[Trunk]
+    B --> C[Termux]
+    B --> D[Laptop]
 ```
-master < trunk <> termux
-               <> laptop
+
+But the merging direction can be visualized like this:
+
+```mermaid
+flowchart TD
+    A[Trunk] --> B[Master]
+    A --> C[Termux]
+    A --> D[Laptop]
+    D --> A
+    C --> A
+    B -->|X| A
 ```
 
 > only merge `trunk` to `master`, `termux`, or `laptop`, or from `termux` or `laptop` to `trunk`, but never merge `master` to `trunk`.
+
+
+```mermaid
+graph TB;
+  Trunk-->Master;
+  Trunk-->Termux;
+  Trunk<-->Home;
+  Termux<-->SamsungA30;
+  Termux<-->GalaxyNote;
+  Trunk-->Work;
+  Work<-->Laptop;
+  Work<-->Desktop;
+```
 
 Example history is like the following:
 
@@ -96,21 +123,11 @@ gitGraph
     commit
     commit
     branch trunk
-    checkout trunk
-    commit
-    checkout main
     commit
     branch termux
-    checkout termux
     commit
     checkout main
     commit
-    checkout trunk
-    commit
-    checkout termux
-    commit
-    checkout main
-    merge trunk
     checkout trunk
     commit
     checkout termux
@@ -120,12 +137,10 @@ gitGraph
     merge trunk
     checkout trunk
     commit
-    checkout main
     commit
-    checkout termux
+    checkout main
     merge trunk
-    checkout main
-    commit
+    checkout termux
     merge trunk
 ```
 
