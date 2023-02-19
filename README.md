@@ -1,17 +1,21 @@
-**Welcome to my dotfiles repository!**
+# Welcome to ~/.* managed with xadf (xeno authority dotfiles) !
+
+![Obligatory screenshot](pics/screenshot-2023-02-19_15-30-30.png)
 
 My dotfiles repository, managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](.local/bin/xadf)) that also function as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
 Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)) either for my use or just for fun.
 
-> **Note for forkers:** It is not recommended to use my setup right away. You should at least inspect the scripts and configuration files of my setup. Maybe you'd be more interested in the main `xadf` script, how it manages dotfiles at home directory, what to change if you're forking this repository (or `xadf` specifically) or its installation steps. In that case you may wish to jump to [Code Design of xadf](#code-design-of-xadf) for an overview of `xadf` code structure, [Installation](#installation-of-xadf) on how to install `xadf` and use it to manage your dotfiles with git, or even reading through `xadf`'s [technical specifications](#implementing-bare-git-with-alias-method-as-a-helper-script).
-
 [TOC]
+
+> **Note for forkers:** It is not recommended to use my setup right away. You should at least inspect the scripts and configuration files of my setup. Maybe you'd be more interested in the main `xadf` script, how it manages dotfiles at home directory, what to change if you're forking this repository (or `xadf` specifically) or its installation steps.
+> 
+> In that case you may wish to jump to [Code Design of xadf](#code-design-of-xadf) for an overview of `xadf` code structure, [Installation](#installation-of-xadf) on how to install `xadf` and use it to manage your dotfiles with git, or even reading through `xadf`'s [technical specifications](#implementing-bare-git-with-alias-method-as-a-helper-script).
 
 # Introduction
 
-Since 6 February 2023, I've been looking for a way to conveniently manage my dotfiles with git version control. The question remains on how to properly do it? The options are either using [stow](https://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html), or bare git and alias method (see [archlinux wiki page on dotfiles](https://wiki.archlinux.org/title/Dotfiles)).
+I've been looking for a way to conveniently manage my dotfiles with git version control. The question remains on how to properly do it? The options are either using [stow](https://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html), or bare git and alias method (see [archlinux wiki page on dotfiles](https://wiki.archlinux.org/title/Dotfiles)).
 
-After testing the `stow` methods in 13 February 2023, I concluded that it provides only marginal improvements at the expense of symlinking in home directory and complicated setup (manually copy config files and recreate the directory tree for each stow packages). The bare git and alias method seems simpler, directly work at home directory instead of a separate folder, avoids symlinking, and we can selectively decide which file to track. ([The set up](https://gitlab.com/Siilwyn/my-dotfiles/tree/master/.my-dotfiles)) seems to be simpler too.
+After testing the `stow` method, I concluded that it provides only marginal improvements at the expense of symlinking in home directory and complicated setup (manually copy config files and recreate the directory tree for each stow packages). The bare git and alias method seems simpler, directly work at home directory instead of a separate folder, avoids symlinking, and we can selectively decide which file to track. ([The set up](https://gitlab.com/Siilwyn/my-dotfiles/tree/master/.my-dotfiles)) seems to be simpler too.
 
 However the problem remains on how to include [`LICENSE`](./LICENSE) and `README.md` at the root of repository but not in our actual home folder. It is trivial with `stow` method, where we just place them in the root of the repository, while each folder represents stow packages. With git, we have to use smart branch hacks to hide `LICENSE` and `README.md` from our actual home directory.
 
@@ -45,7 +49,7 @@ rm --recursive .xadf-tmp
 
 Since there would be a ton of files in a real home directory, having them shown all the time will be a nuisance and a straightforward distraction. Here we configure git to not show untracked files.
 
-Additionally, since we are cloning from https link, we may need to change the link to ssh clone link. Otherwise we will have to type our credentials on every push operation. Make sure to set up ssh keys on the machine and add it to your git account beforehand.
+Additionally, since we are cloning from git https clone url, we may need to change to git ssh clone url. Otherwise we will have to type our credentials on every push operation. Make sure to set up ssh keys on the machine and add it to your git account beforehand.
 
 ```bash
 xadf config status.showUntrackedFiles no
@@ -84,6 +88,48 @@ master < trunk <> termux
 ```
 
 > only merge `trunk` to `master`, `termux`, or `laptop`, or from `termux` or `laptop` to `trunk`, but never merge `master` to `trunk`.
+
+Example history is like the following:
+
+```mermaid
+gitGraph
+    commit
+    commit
+    branch trunk
+    checkout trunk
+    commit
+    checkout main
+    commit
+    branch termux
+    checkout termux
+    commit
+    checkout main
+    commit
+    checkout trunk
+    commit
+    checkout termux
+    commit
+    checkout main
+    merge trunk
+    checkout trunk
+    commit
+    checkout termux
+    merge trunk
+    commit
+    checkout main
+    merge trunk
+    checkout trunk
+    commit
+    checkout main
+    commit
+    checkout termux
+    merge trunk
+    checkout main
+    commit
+    merge trunk
+```
+
+> Notice that all branches (including main) merge trunk to them, but not the other way around. That way you can place common configurations in branch `trunk`, and you merge them to machine-specific or setup-specific branches frequently.
 
 # Implementing Bare Git with Alias method as a helper script
 
