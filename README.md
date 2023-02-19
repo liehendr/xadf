@@ -102,7 +102,7 @@ end
 A more complicated tree is actually possible:
 
 ```mermaid
-graph TB;
+graph TD;
   Trunk-->Master;
   Trunk-->Termux;
   Trunk<-->Home;
