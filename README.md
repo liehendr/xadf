@@ -525,12 +525,12 @@ Its installation is also similar. All we have to do is to clone the repository t
 | xadf v0 | current xadf | comment |
 | :------ | :----------- | :------ |
 | `$xadf/`                 | `~/`                        | Root directory of the repository |
-| `  config/`              | `~/.config/`                | Previous `xadf v0` requires us to manually sync them with `~/.config/` |
-| `  custom/`              | `~/.local/xadf/`            | Where we place `bash_functions`, `bash_aliases`, and various custom bash scripts. The `bash_function` file in `xadf v0` used to have a custom `xadf()` function to update `$xadf` directory with remote, or reload `head.sh`. |
-| `  local/`               | `~/.local/`                 | Generally where we place binaries or shared files (for programs to use) |
-| `xadf.sh`                | `~/.local/bin/xadf`         | Not exactly a direct analog. In `xadf v0`, its responsibility is to generate `head.sh` and `recipe.txt`, while also appending a line in `.bashrc` to source `head.sh` if it is not present. Meanwhile the current incarnation manages everything from installing to day-to-day use. |
-| `head.sh`                | `~/.config/xadf/xadfrc`     | Manages xadf-specific variables, especially where it would look for configuration files. Also loads `recipe.txt` |
-| `recipe.txt`             | `~/.config/xadf/recipe.txt` | A definition file for what modules to load, also function as an extension of `.bashrc` |
+| `$xadf/config/`          | `~/.config/`                | Previous `xadf v0` requires us to manually sync them with `~/.config/` |
+| `$xadf/custom/`          | `~/.local/xadf/`            | Where we place `bash_functions`, `bash_aliases`, and various custom bash scripts. The `bash_function` file in `xadf v0` used to have a custom `xadf()` function to update `$xadf` directory with remote, or reload `head.sh`. |
+| `$xadf/local/`           | `~/.local/`                 | Generally where we place binaries or shared files (for programs to use) |
+| `$xadf/xadf.sh`          | `~/.local/bin/xadf`         | Not exactly a direct analog. In `xadf v0`, its responsibility is to generate `head.sh` and `recipe.txt`, while also appending a line in `.bashrc` to source `head.sh` if it is not present. Meanwhile the current incarnation manages everything from installing to day-to-day use. |
+| `$xadf/head.sh`          | `~/.config/xadf/xadfrc`     | Manages xadf-specific variables, especially where it would look for configuration files. Also loads `recipe.txt` |
+| `$xadf/recipe.txt`       | `~/.config/xadf/recipe.txt` | A definition file for what modules to load, also function as an extension of `.bashrc` |
 
 One major difference of current incarnation of `xadf` with `xadf v0` is that configuration files in `$xadf/` is not the same as configuration files in `$HOME/`. This is not true with the current incarnation where the working directory of `xadf` repository is exactly `$HOME`.
 
