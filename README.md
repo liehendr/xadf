@@ -548,8 +548,10 @@ The exact actions that must be exactly followed are:
 Hence the following oneliner:
 
 ```
-sed 's_^source.*xadf/head\.sh._# &_' ~/.bashrc; unset -f xadf
+sed -i 's_^source.*xadf/head\.sh._# &_' ~/.bashrc && unset -f xadf
 ```
+
+The `sed` invocation search within `~/.bashrc` for a line that starts with `source`, then followed with anything, then also contain `xadf/head.sh` and one more character (I specifically searched for the ending `"`), then replace it with the string `# ` and all the matches (the regex pattern `&` does it). If it is successfully removed, it will unset function in your bash environment named `xadf`.
 
 Afterwards you can safely remove `$xadf` if so desired:
 
