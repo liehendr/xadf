@@ -479,3 +479,58 @@ unset xadfconfig xadfmods xadfdir
 ```
 
 It is required to unset those variables because it might interfere in the next attempt to install `xadf`
+
+# Migrating from xadf v0
+
+> **Note:** This section is for my personal use.
+
+The `xadf v0` is actually my previous poor attempt to back up and manage dotfiles. I was having difficulties on setting up a repository, that I can pull into a new machine, and then use custom bash function `xadf()` to pull and update config files. Then I will have to manually sync the content of the repository into appropriate locations on my real home.
+
+As you may have guessed, it is very easy for me to forget to actually edit inside xadf directory (a separate location from my actual dotfiles location), and sync to home directory. I ended up editing directly on my home directory, and syncing them one by one to the repository.
+
+Because of the frustration on managing them in such a tedious workflow, I decided to research more on how to manage dotfiles. That brings us to the current incarnation of `xadf`.
+
+However it is not entirely an useless experience for me. In fact because of the previous incarnation of `xadf`, I get the inspiration of the current `.bashrc > xadfrc > recipe.txt` (it was `.bashrc > head.sh > recipe.txt` in `xadf v0`).
+
+## Brief differences between xadf v0 and current xadf script
+
+`xadf v0` was designed to operate in a single location (designated `$xadf` directory) that will contain custom functions, extensions for bash aliases and bash functions, and other configuration files. Meanwhile in `xadf`, all the files are meant to reside direclty in user home directory.
+
+Its installation is also similar. All we have to do is to clone the repository to any location we wish under `$HOME` (normally `~/Documents/xadf/`), change directory there, and run `xadf.sh`. It will generate `head.sh` and `recipe.txt` if they are not present already, and append a line in `~/.bashrc` to source `head.sh`. Then we manually sync the content of `config/` to `~/.config/` and the content of `local/` to `~/.local/`. That last step must be repeated on every update made in `config/` and `local/` under `$xadf/`.
+
+| xadf v0 | current xadf | comment |
+| :------ | :----------- | :------ |
+| `$xadf/`                 | `~/`                        | Root directory of the repository |
+| `  config/`              | `~/.config/`                | Previous `xadf v0` requires us to manually sync them with `~/.config/` |
+| `  custom/`              | `~/.local/xadf/`            | Where we place `bash_functions`, `bash_aliases`, and various custom bash scripts. The `bash_function` file in `xadf v0` used to have a custom `xadf()` function to update `$xadf` directory with remote, or reload `head.sh`. |
+| `  local/`               | `~/.local/`                 | Generally where we place binaries or shared files (for programs to use) |
+| `xadf.sh`                | `~/.local/bin/xadf`         | Not exactly a direct analog. In `xadf v0`, its responsibility is to generate `head.sh` and `recipe.txt`, while also appending a line in `.bashrc` to source `head.sh` if it is not present. Meanwhile the current incarnation manages everything from installing to day-to-day use. |
+| `head.sh`                | `~/.config/xadf/xadfrc`     | Manages xadf-specific variables, especially where it would look for configuration files. Also loads `recipe.txt` |
+| `recipe.txt`             | `~/.config/xadf/recipe.txt` | A definition file for what modules to load, also function as an extension of `.bashrc` |
+
+One major difference of current incarnation of `xadf` with `xadf v0` is that configuration files in `$xadf/` is not the same as configuration files in `$HOME/`. This is not true with the current incarnation where the working directory of `xadf` repository is exactly `$HOME`.
+
+Similar to the current incarnation, I designed `xadf v0` to be minimally invasive to the home directory. Meaning its entire life hangs on the existence of a line in `.bashrc` that loads `$xadf/head.sh`. It is useful for my case because it means all I have to do is simply to remove or comment out that line.
+
+## Removing xadf v0
+
+As described in the previous section, removing `xadf v0` should be fairly trivial and easy. Ideally it should also be done before installing `xadf` because of the existence of `xadf()` bash function in a system managed with `xadf v0`. We also want to do it in the most simplest and reproducible manner.
+
+The exact actions that must be exactly followed are:
+
+1. Comment out the line in `.bashrc` that sources `$xadf/head.sh`
+2. Unset `xadf()` from your environment to not interfere with `~/.local/bin/xadf`
+
+Hence the following oneliner:
+
+```
+sed 's_^source.*xadf/head\.sh._# &_' ~/.bashrc; unset -f xadf
+```
+
+Afterwards you can safely remove `$xadf` if so desired:
+
+```
+rm -rf "$xadf"
+```
+
+That is the entire necessary steps required to remove `xadf v0`. You can then proceed to [install `xadf`](#installation-of-xadf).
