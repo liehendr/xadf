@@ -58,7 +58,7 @@ test ! -d ~/.local/xadf && mkdir ~/.local/xadf
 xadf_build_recipe(){
 # builds recipe
 printf "[xadf]: Generate recipe...\n"
-cat ~/.local/xadf/templates/default-recipe.txt > ~/.config/xadf/recipe.txt
+cp ~/.local/xadf/templates/default-recipe.txt ~/.config/xadf/recipe.txt
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL\n"
