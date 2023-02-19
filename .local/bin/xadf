@@ -203,17 +203,25 @@ xadf_version(){
 printf "xadf version %s\n\n" "$version"
 }
 
-xadf_show_help(){
-# runs xadf -v
-# prints help text, then exit
+xadf_show_usage(){
+# prints usage text, then exit
 xadf -v
 cat <<ENDOFFILE
   A bash script to control and manage xa-dotfiles (xadf) in a home
   folder with bare git methods. When called without its native
   arguments, act as an alias of:
+
     git --git-dir=\$xadfdir --work-tree=\$HOME "\$@"
 
 USAGE
+
+  ~$ xadf -i [install options]
+  ~$ xadf [options] [value]
+  ~$ xadf [git commands]
+
+  See 'xadf -h/--help' for a complete list of options.
+
+EXAMPLES
 
   ~$ xadf -i --seat "\$HOME/.dotfiles"
   --> installs xadf, and sets up git directory for xadf to \$HOME/.dotfiles
@@ -235,6 +243,28 @@ USAGE
   ~$ xadf push
   ~$ xadf checkout trunk
 
+ENDOFFILE
+}
+
+xadf_show_help(){
+# runs xadf -v
+# prints help text, then exit
+xadf -v
+cat <<ENDOFFILE
+  A bash script to control and manage xa-dotfiles (xadf) in a home
+  folder with bare git methods. When called without its native
+  arguments, act as an alias of:
+  
+    git --git-dir=\$xadfdir --work-tree=\$HOME "\$@"
+
+USAGE
+
+  ~$ xadf -i [install options]
+  ~$ xadf [options] [value]
+  ~$ xadf [git commands]
+
+  See 'xadf --usage' for more usage examples.
+
 OPTIONS
 
 Normal usage options:
@@ -253,6 +283,7 @@ Normal usage options:
                             desired, you can change the option or the url to
                             your own.
   --help/-h                 Display this help text and then exit
+  --usage                   Display usage examples and then exit
   --version/-v              Prints version and then exit
 
 xadf installation options:
@@ -284,6 +315,11 @@ while :; do
 		-h | --help ) # show help text, then exit
 			shift
 			xadf_show_help
+			exit 0
+			;;
+		--usage ) # show usage text, then exit
+			shift
+			xadf_show_usage
 			exit 0
 			;;
 		-v | --version ) # show version, then exit
@@ -332,7 +368,6 @@ while :; do
 		# general matching for all other cases
 		-* ) # invalid options
 			printf >&2 "Error: Invalid flag '%s'\nUsage: xadf -h\n\n" "$1"
-			xadf_show_help
 			shift
 			exit 3
 			;;
