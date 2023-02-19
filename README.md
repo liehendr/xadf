@@ -15,7 +15,7 @@ Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)
 
 I've been looking for a way to conveniently manage my dotfiles with git version control. The question remains on how to properly do it? The options are either using [stow](https://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html), or bare git and alias method (see [archlinux wiki page on dotfiles](https://wiki.archlinux.org/title/Dotfiles)).
 
-After testing the `stow` method, I concluded that it provides only marginal improvements at the expense of symlinking in home directory and complicated setup (manually copy config files and recreate the directory tree for each stow packages). The bare git and alias method seems simpler, directly work at home directory instead of a separate folder, avoids symlinking, and we can selectively decide which file to track. ([The set up](https://gitlab.com/Siilwyn/my-dotfiles/tree/master/.my-dotfiles)) seems to be simpler too.
+After testing the `stow` method, I concluded that it provides only marginal improvements at the expense of symlinking in home directory and complicated setup (manually copy config files and recreate the directory tree for each stow packages). The bare git and alias method seems simpler, directly work at home directory instead of a separate folder, avoids symlinking, and we can selectively decide which file to track. [The set up](https://gitlab.com/Siilwyn/my-dotfiles/tree/master/.my-dotfiles) seems to be simpler too.
 
 However the problem remains on how to include [`LICENSE`](./LICENSE) and `README.md` at the root of repository but not in our actual home folder. It is trivial with `stow` method, where we just place them in the root of the repository, while each folder represents stow packages. With git, we have to use smart branch hacks to hide `LICENSE` and `README.md` from our actual home directory.
 
@@ -94,7 +94,8 @@ subgraph "Merge direction"
     F -->|Undesirable| E
     E <--> G[Termux]
     E <--> H[Laptop]
-end```
+end
+```
 
 > only merge `trunk` to `master`, `termux`, or `laptop`, or from `termux` or `laptop` to `trunk`, but never merge `master` to `trunk`.
 
