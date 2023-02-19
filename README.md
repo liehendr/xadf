@@ -249,7 +249,7 @@ File     : default-recipe.txt
 Location : ~/.local/xadf/templates/
 ```
 
-The content of `$xadfmods/templates/default-recipe.txt` that is used to build default `recipe.txt` should at least perfomrs the following actions:
+The content of `$xadfmods/templates/default-recipe.txt` that is used to build default `recipe.txt` should at least performs the following actions:
 
 1. if present, sources `$xadfmods/bash_aliases`
 2. if present, sources `$xadfmods/bash_functions`
@@ -271,32 +271,41 @@ This is essentially our dotfiles repo controller. It can also function as an ins
 The following are its native options:
 
 **-r / --build-recipe**
+
 : produce `$xadfconfig/recipe.txt` by copying `$xadfmods/default-recipe.txt`
 
 **-x / --build-xadfrc**
+
 : produce `$xadfconfig/xadfrc` by constructing from `$xadfmods/template-xadfrc`
 
 **-l / --list-tracked**
+
 : lists tracked file, an alias of `xadf ls-tree --full-tree -r --name-only HEAD "$@"`. May expect arguments in form of path relative to repository root. See README.md of dotfiles repo of alfunx. Note: it is ***MUTUALLY EXCLUSIVE WITH*** other options after this option.
 
 **--heno**
+
 : configures upstream link, essentially an alias for `xadf remote set-url origin git@gitlab.com:heno72/xadf.git` (for my personal needs, don't do that if you don't have write access there! If so desired, you can change the option or the url to your own).
 
 **-v / --version**
+
 : prints version and exit
 
 **-h / --help**
+
 : prints help and exit
 
 Installation-specific options:
 
 **-i / --install**
+
 : function as an installer, and perform installation of xadf into user's `$HOME`, and building `xadfrc`. By default, configure xadf git directory in `$HOME/xadf`
 
 **--seat DIR**
+
 : configures xadf git directory to a custom location DIR instead of `$HOME/xadf` during install time. Is meant to be used in conjuction of option `-i / --install`
 
 **-b NAME / --branch NAME**
+
 : checks out to branch NAME. Without this argument, it is identical to call the program with option `--branch master`
 
 ### Installer
@@ -400,6 +409,8 @@ xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
 
 # Installation of xadf
 
+> **Tip:** You may wish to [check dependencies](#dependencies-of-xadf) required to properly run xadf.
+
 Download xadf script [here](https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf), then make it executable. Place it somewhere in your `$PATH`. Ideally save it as `$HOME/.local/bin/xadf` so it will be replaced with the latest version of `xadf` from our git repository.
 
 ```bash
@@ -453,6 +464,19 @@ xadf -x --seat ~/.dotfiles
 # Check whether everything is succesfully configured or not
 xadf status -sb
 ```
+
+## Dependencies of xadf
+
+`xadf` is nothing but a single executable bash script, and depends on a variety of programs installed in your environment. The following is a non-exahustive list of programs that you need to have installed before running the script:
+
+- `bash` - GNU bash
+- `cat` - GNU coreutils
+- `sed` - GNU sed
+- `git`
+- `rm` - GNU coreutils
+- `rsync`
+- `realpath` - GNU coreutils
+- `wget` - GNU Wget
 
 # Uninstallation of xadf
 
