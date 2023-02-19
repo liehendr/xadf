@@ -80,25 +80,23 @@ As long as we work with the `trunk` branch and never merge `master` there, we wi
 
 Though, honestly I would advise to make shared configs on `trunk` and later merge them to other branches and branch `master`.
 
-Therefore, we can visualize the branching direction like this:
+Therefore, we can visualize the branching and merging direction like this:
 
 ```mermaid
-flowchart TD
+flowchart TB
+subgraph "Branch tree"
     A[Master] --> B[Trunk]
     B --> C[Termux]
     B --> D[Laptop]
-```
-
-But the merging direction can be visualized like this:
-
-```mermaid
-flowchart TD
-    A[Trunk] --> B[Master]
-    A --> C[Termux]
-    A --> D[Laptop]
-    D --> A
-    C --> A
-    B -->|X| A
+end
+subgraph "Merge direction"
+    E[Trunk] --> F[Master]
+    E --> G[Termux]
+    E --> H[Laptop]
+    H --> E
+    G --> E
+    F -->|Invalid| E
+end
 ```
 
 > only merge `trunk` to `master`, `termux`, or `laptop`, or from `termux` or `laptop` to `trunk`, but never merge `master` to `trunk`.
