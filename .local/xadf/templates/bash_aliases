@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# I found this useful alias from my .bashrc file, can't tell where did I get it though
+# Apparently it is from default alert alias
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+# alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# This one is better, and I found this from AskUbuntu: https://askubuntu.com/a/749207/126560
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && (echo terminal; exit 0) || (echo error; exit 1))" "$([ $? = 0 ] && echo Task finished || echo Something went wrong!)" "$(history | sed -n "\$s/^\s*[0-9]\+\s*\(.*\)[;&|]\s*alert\$/\1/p")"'
+
+# I use this command often, so might as well alias it
+alias rs='rsync -artvcis --progress'

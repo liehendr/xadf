@@ -1,0 +1,66 @@
+#!/bin/bash
+########################################################################
+## Useful simple functions
+########################################################################
+
+function caterr { cat "$@" >&2; }
+function echoerr { echo "$@" >&2; }
+
+########################################################################
+## Do some calculation with bc
+########################################################################
+
+function bcalc {
+bc -lq $@
+}
+
+########################################################################
+## Some extras
+########################################################################
+
+## This function makes qr code of text $2, then it
+## displays the resulting qrcode.
+function qrquick
+{
+  if [ $# -eq 2 ]; then
+    qrencode -s 12 -m 1 -o $1.png "$2";
+    display $1.png
+  else
+    echo "usage: qrquick <output> <text>"
+  fi
+}
+
+## ssl encryption function
+
+function ssl-encrypt
+{
+  if [ $# -eq 2 ]; then
+    openssl enc -aes-256-cbc -a -salt -in $1 -out $2
+  else
+    echo "usage: ssl-encrypt <source> <destination>"
+  fi
+}
+
+function ssl-decrypt
+{
+  if [ $# -eq 2 ]; then
+    openssl enc -aes-256-cbc -d -a -in $1 -out $2
+  else
+    echo "usage: ssl-decrypt <source> <destination>"
+  fi
+}
+
+## Wrapper for mpv and some fancy tasks such as building a playlist
+
+mplay() {
+case $1 in
+  w|watch)
+    # Play the playlist file
+    mpv --playlist=play.list
+    ;;
+  l|list|updatelist)
+    # Update playlist file
+    ls|grep -i "mkv\|mp4" |tee play.list
+    ;;
+esac
+}
