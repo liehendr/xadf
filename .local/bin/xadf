@@ -217,7 +217,7 @@ USAGE
 
   ~$ xadf -i [install options]
   ~$ xadf [options] [value]
-  ~$ xadf [git commands]
+  ~$ xadf [-c DIR] [git commands]
 
   See 'xadf -h/--help' for a complete list of options.
 
@@ -243,6 +243,12 @@ EXAMPLES
   ~$ xadf push
   ~$ xadf checkout trunk
 
+  Alternatively, you can use '--custom-seat/-c DIR' followed with git commands
+  as an alias for a secondary/alternative git repository:
+
+  ~$ xadf --c .secondarygit status
+  ~$ xadf --custom-seat ~/.git2 checkout termux
+
 ENDOFFILE
 }
 
@@ -261,7 +267,7 @@ USAGE
 
   ~$ xadf -i [install options]
   ~$ xadf [options] [value]
-  ~$ xadf [git commands]
+  ~$ xadf [-c DIR] [git commands]
 
   See 'xadf --usage' for more usage examples.
 
@@ -282,6 +288,10 @@ Normal usage options:
                             this if you don't have write access there! If so
                             desired, you can change the option or the url to
                             your own.
+  --custom-seat/-c DIR      Sets xadf git directory to DIR. Unlike --seat,
+                            the next options will be assumed to be git
+							commands. Useful to use an alternative git
+							directory.
   --help/-h                 Display this help text and then exit
   --usage                   Display usage examples and then exit
   --version/-v              Prints version and then exit
@@ -346,7 +356,6 @@ while :; do
 			if test -z "$2"
 			then
 				printf >&2 "Error: No branch is set\nUsage: xadf -h\n\n"
-				xadf_show_help
 				exit 2
 			else
 				export install_branch="$2"
@@ -364,6 +373,19 @@ while :; do
 		--heno ) # changes upstream url
 			export is_heno=1
 			shift
+			;;
+		# Modifiers for default git alias
+		-c | --custom-seat )
+			if test -z "$2"
+			then # prints error when no seat location is set
+				printf >&2 "Error: No custom seat is set\nUsage: xadf -h\n\n"
+				exit 13
+			else # shift arguments to just git commands, then run git, and exit
+				export install_seat="$(realpath $2)"
+				shift 2
+				git --git-dir="$install_seat" --work-tree="$HOME" "$@"
+				exit 0
+			fi
 			;;
 		# general matching for all other cases
 		-* ) # invalid options
