@@ -91,16 +91,14 @@ subgraph "Branch tree"
 end
 subgraph "Merge direction"
     E[Trunk] --> F[Master]
-    E --> G[Termux]
-    E --> H[Laptop]
-    H --> E
-    G --> E
-    F -->|Invalid| E
-end
-```
+    F -->|Undesirable| E
+    E <--> G[Termux]
+    E <--> H[Laptop]
+end```
 
 > only merge `trunk` to `master`, `termux`, or `laptop`, or from `termux` or `laptop` to `trunk`, but never merge `master` to `trunk`.
 
+A more complicated tree is actually possible:
 
 ```mermaid
 graph TB;
@@ -114,7 +112,7 @@ graph TB;
   Work<-->Desktop;
 ```
 
-Example history is like the following:
+Example git history looks like the following:
 
 ```mermaid
 gitGraph
