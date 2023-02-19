@@ -254,7 +254,7 @@ cat <<ENDOFFILE
   A bash script to control and manage xa-dotfiles (xadf) in a home
   folder with bare git methods. When called without its native
   arguments, act as an alias of:
-  
+
     git --git-dir=\$xadfdir --work-tree=\$HOME "\$@"
 
 USAGE
@@ -363,7 +363,7 @@ while :; do
 			;;
 		--heno ) # changes upstream url
 			export is_heno=1
-			break
+			shift
 			;;
 		# general matching for all other cases
 		-* ) # invalid options
