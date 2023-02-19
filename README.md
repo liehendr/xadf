@@ -321,6 +321,8 @@ The use of `-i` option when executing `xadf` should perform the following action
 Following the specifications of `xadf` and its supporting configurations, we can then outline how the code should be structured.
 
 1. Define state variables:
+   
+   > **Note for forkers:** you may want to change the values of `xadf_https_repo` and `xadf_ssh_repo` to point to your forked repository instead of mine.
 
 ```bash
 version=<version number> # (for use with --version)
@@ -333,8 +335,6 @@ install_branch="trunk"
 xadf_https_repo="https://gitlab.com/heno72/xadf.git"
 xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
 ```
-   
-   > **Note for forkers:** you may want to change the values of `xadf_https_repo` and `xadf_ssh_repo` to point to your forked repository instead of mine.
 
 2. Define function `xadf_build_recipe()`
 
