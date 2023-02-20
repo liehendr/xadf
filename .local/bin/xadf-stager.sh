@@ -5,7 +5,7 @@ gitstager(){
 test -z "$1" && local source="trunk"
 test -z "$2" && local target="master"
 
-if [ ! -f ".git" ]
+if [ ! -f ".git/config" ]
 then
   echo "Not in a git repo!" >&2
   exit 1
