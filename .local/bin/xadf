@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version="v1.1.20230220.1708+custom_install"
+version="v1.1.20230220.1708+clone_url"
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -123,12 +123,7 @@ xadf_touch_bashrc
 printf "[xadf]: You may want to source your ~/.bashrc\n"
 }
 
-xadf_install(){
-# installs xadf
-printf "[xadf]: installing xadf\n"
-printf "[xadf]: seat is '%s'\n" "$install_seat"
-printf "[xadf]: branch is '%s'\n" "$install_branch"
-
+xadf_clone_source(){
 # 1. Replicate from xadf git repository with separate git configuration.
 #    It will also specify a temporary location $HOME/.xadf-tmp to store
 #    all contents of the repo. If --seat is set, replicate git directory
@@ -201,6 +196,16 @@ then
 else
 	printf "[xadf]: DONE\n"
 fi
+}
+
+xadf_install(){
+# installs xadf
+printf "[xadf]: installing xadf\n"
+printf "[xadf]: seat is '%s'\n" "$install_seat"
+printf "[xadf]: branch is '%s'\n" "$install_branch"
+
+# Step 1-5 is replaced with:
+xadf_clone_source
 
 # 6. Make untracked files not shown: xadf config status.showUntrackedFiles no
 printf "[xadf]: Makes untracked file not shown...\n"
@@ -336,7 +341,7 @@ Normal usage options:
                             the next options will be assumed to be git
                             commands. Useful to use an alternative git
                             directory.
-  --set-origin-url/-s URL   Essentially an alias for:
+  --set-origin-url/-o URL   Essentially an alias for:
                               xadf remote set-url origin URL
                             Changes remote url to the specified URL.
   --xadf-repo               Essentially an alias for:
@@ -358,6 +363,12 @@ xadf installation options:
   --branch/-b BRANCH        Sets active git branch in \$HOME to BRANCH. If not
                             specified, it is identical to run the script with
                             option --branch/-b trunk        Default: trunk
+                            Is meant to be used with option --install/-i. If
+                            xadf is already properly configured, consider using
+                            'xadf checkout BRANCH' instead.
+  --clone-source/-s URL     Sets a custom git repository URL as its clone url
+                            instead of xadf's own clone url during install.
+                            Is meant to be used with option --install/-i.
 
 ENDOFFILE
 # $(printf "%s\n" "$install_seat"|sed 's#$HOME#\$HOME#')                          
@@ -439,7 +450,7 @@ while :; do
 			export vanilla_xadf=1
 			shift
 			;;
-		-s | --set-origin-url ) # changes upstream url
+		-o | --set-origin-url ) # changes upstream url
 			if test -z "$2"
 			then # prints error if no url is provided
 				printf >&2 "Error: No custom url is set\nUsage: xadf -h\n\n"
@@ -449,6 +460,15 @@ while :; do
 				export xadf_set_url="$2"
 				shift 2
 			fi
+			;;
+		-s | --clone-source ) # changes clone source url
+			if test -z "$2"
+			then # prints error if no url is provided
+				printf >&2 "Error: No custom url is set\nUsage: xadf -h\n\n"
+				exit 15
+			else # export custom url then shift arguments
+				export xadf_clone_url="$2"
+				shift 2
 			;;
 		# Modifiers for default git alias
 		-c | --custom-seat )
