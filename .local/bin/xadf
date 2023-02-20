@@ -157,7 +157,8 @@ printf "[xadf]: Checks out to branch '%s'...\n" "$install_branch"
 git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" checkout "$install_branch"
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "[xadf]: FAIL! cleaning up...\n"
+	rm -rf "$install_seat" "$HOME/.xadf-tmp"
 	exit 8
 else
 	# right now our working directory is ~/.xadf-tmp
