@@ -39,15 +39,18 @@
 ###############################################################################
 
 # Define state variables
-version="2023-02-18"
-is_heno=0
+version="v1.1.20230220.1708+clone_url"
+vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
+touch_bashrc=0
+init_bare=0
 install_mode=0
 install_seat="$HOME/xadf"
 install_branch="trunk"
-xadf_https_repo="https://gitlab.com/heno72/xadf.git"
-xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
+xadf_clone_url="https://gitlab.com/heno72/xadf.git"
+xadf_set_url="git@gitlab.com:heno72/xadf.git"
+set_origin_url=0
 
 # Make necessary directories
 test ! -d ~/.config && mkdir ~/.config
@@ -81,19 +84,53 @@ else
 fi
 }
 
-xadf_install(){
-# installs xadf
-printf "[xadf]: installing xadf\n"
-printf "[xadf]: seat is '%s'\n" "$install_seat"
-printf "[xadf]: branch is '%s'\n" "$install_branch"
+xadf_touch_bashrc(){
+# 9. If .bashrc does not contain . ~/.config/xadf/xadfrc, appends that
+#    line to the end of ~/.bashrc. Note that it should at first strip all
+#    comments off by piping to sed (does not modify .bashrc) and then
+#    performs grep search
+printf "[xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
+sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
+test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
+if test $? -gt 0
+then
+	printf "[xadf]: xadfrc is already sourced...OK\n"
+else
+	printf "[xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
+fi
+}
 
+xadf_init_bare(){
+	printf "[xadf]: Initialize a bare directory at '%s'\n" "$install_seat"
+	git init --bare "$install_seat"
+	if test $? -gt 0
+	then
+		printf >&2 "[xadf]: Failed to initialize a bare directory at '%s'\n" "$install_seat"
+		exit 15
+	else
+		printf "[xadf]: Initialize a bare directory at '%s'...OK\n" "$install_seat"
+	fi
+}
+
+xadf_custom_install(){
+printf "[xadf]: Sets up xadf configuration to load from a non-xadf based repository at '%s'\n" "$install_seat"
+printf "[xadf]: Updates xadfrc\n"
+xadf_build_xadfrc
+printf "[xadf]: Ensures recipe.txt is present\n"
+test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
+printf "[xadf]: Touching ~/.bashrc\n"
+xadf_touch_bashrc
+printf "[xadf]: You may want to source your ~/.bashrc\n"
+}
+
+xadf_clone_source(){
 # 1. Replicate from xadf git repository with separate git configuration.
 #    It will also specify a temporary location $HOME/.xadf-tmp to store
 #    all contents of the repo. If --seat is set, replicate git directory
 #    to the specified location. Otherwise, replicate git directory to
 #    $HOME/xadf
-printf "[xadf]: Clone from repo '%s'...\n" "$xadf_https_repo"
-git clone --separate-git-dir="$install_seat" "$xadf_https_repo" ~/.xadf-tmp
+printf "[xadf]: Clone from repo '%s'...\n" "$xadf_clone_url"
+git clone --separate-git-dir="$install_seat" "$xadf_clone_url" ~/.xadf-tmp
 if test $? -gt 0
 then
 	printf "[xadf]: FAIL! cleaning up...\n"
@@ -120,7 +157,8 @@ printf "[xadf]: Checks out to branch '%s'...\n" "$install_branch"
 git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" checkout "$install_branch"
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "[xadf]: FAIL! cleaning up...\n"
+	rm -rf "$install_seat" "$HOME/.xadf-tmp"
 	exit 8
 else
 	# right now our working directory is ~/.xadf-tmp
@@ -159,6 +197,16 @@ then
 else
 	printf "[xadf]: DONE\n"
 fi
+}
+
+xadf_install(){
+# installs xadf
+printf "[xadf]: installing xadf\n"
+printf "[xadf]: seat is '%s'\n" "$install_seat"
+printf "[xadf]: branch is '%s'\n" "$install_branch"
+
+# Step 1-5 is replaced with:
+xadf_clone_source
 
 # 6. Make untracked files not shown: xadf config status.showUntrackedFiles no
 printf "[xadf]: Makes untracked file not shown...\n"
@@ -179,15 +227,7 @@ test ! -f "$HOME/.bashrc" && cp /etc/skel/.bashrc ~/.bashrc
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "[xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
-sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
-test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
-if test $? -gt 0
-then
-	printf "[xadf]: xadfrc is already sourced...OK\n"
-else
-	printf "[xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
-fi
+xadf_touch_bashrc && export touch_bashrc=0
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
 test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
@@ -196,6 +236,15 @@ test ! -f ~/.config/recipe.txt && xadf_build_recipe && export build_recipe=0
 
 printf "[xadf]: Installation of xadf is completed, checked out branch is '%s'\n" "$install_branch"
 printf "[xadf]: You may want to source your ~/.bashrc\n"
+}
+
+xadf_touch_origin(){
+	if test -n "$xadfdir"
+	then # xadfdir is set, xadf will call itself as an alias
+		xadf remote set-url origin $xadf_set_url
+	else # is set in installation, will call the raw commands
+		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin $xadf_set_url
+	fi
 }
 
 xadf_version(){
@@ -227,7 +276,7 @@ EXAMPLES
   --> installs xadf, and sets up git directory for xadf to \$HOME/.dotfiles
       instead of \$HOME/xadf
 
-  ~$ xadf --build-xadfrc --heno
+  ~$ xadf --build-xadfrc --xadf-repo
   --> generates xadfrc and save it to ~/.config/xadf/xadfrc and change upstream
       link to git@gitlab.com:heno72/xadf.git
 
@@ -281,17 +330,27 @@ Normal usage options:
                             \$xadfmods/default-recipe.txt
   --build-xadfrc/-x         Produce \$xadfconfig/xadfrc by constructing from
                             \$xadfmods/template-xadfrc
-  --heno                    Essentially an alias for:
-                              xadf remote set-url origin \\
-                              git@gitlab.com:heno72/xadf.git
-                            WARNING: This is for my personal needs. Don't use
-                            this if you don't have write access there! If so
-                            desired, you can change the option or the url to
-                            your own.
+  --touch-bashrc/-t         Modify .bashrc to include a line to source xadfrc
+                            if it is not already present.
+  --init-bare               Initialize a bare git repository at \$HOME. Can be
+                            used in conjuction with --seat option to specify
+                            custom git directory.
+  --custom-install          Configure xadf to load from a non-xadf bare git
+                            repository. May be used in conjuction with --seat
+							to specify custom git directory.
   --custom-seat/-c DIR      Sets xadf git directory to DIR. Unlike --seat,
                             the next options will be assumed to be git
-							commands. Useful to use an alternative git
-							directory.
+                            commands. Useful to use an alternative git
+                            directory.
+  --set-origin-url/-o URL   Essentially an alias for:
+                              xadf remote set-url origin URL
+                            Changes remote url to the specified URL.
+  --xadf-repo               Essentially an alias for:
+                              xadf remote set-url origin \\
+                              git@gitlab.com:heno72/xadf.git
+                            You may not wish to use default clone url. If you
+                            want to use your own url, check option
+                            '--set-origin-url/-s' instead.
   --help/-h                 Display this help text and then exit
   --usage                   Display usage examples and then exit
   --version/-v              Prints version and then exit
@@ -305,6 +364,12 @@ xadf installation options:
   --branch/-b BRANCH        Sets active git branch in \$HOME to BRANCH. If not
                             specified, it is identical to run the script with
                             option --branch/-b trunk        Default: trunk
+                            Is meant to be used with option --install/-i. If
+                            xadf is already properly configured, consider using
+                            'xadf checkout BRANCH' instead.
+  --clone-source/-s URL     Sets a custom git repository URL as its clone url
+                            instead of xadf's own clone url during install.
+                            Is meant to be used with option --install/-i.
 
 ENDOFFILE
 # $(printf "%s\n" "$install_seat"|sed 's#$HOME#\$HOME#')                          
@@ -342,6 +407,10 @@ while :; do
 			export install_mode=1
 			shift
 			;;
+		--custom-install ) # performs custom xadf install
+			export install_mode=2
+			shift
+			;;
 		--seat ) # set git dir to DIR
 			if test -z "$2"
 			then
@@ -370,9 +439,38 @@ while :; do
 			export build_xadfrc=1
 			shift
 			;;
-		--heno ) # changes upstream url
-			export is_heno=1
+		-t | --touch-bashrc )
+			export touch_bashrc=1
 			shift
+			;;
+		--init-bare )
+			export init_bare=1
+			shift
+			;;
+		--xadf-repo ) # changes upstream url
+			export vanilla_xadf=1
+			shift
+			;;
+		-o | --set-origin-url ) # changes upstream url
+			if test -z "$2"
+			then # prints error if no url is provided
+				printf >&2 "Error: No custom url is set\nUsage: xadf -h\n\n"
+				exit 14
+			else # export states and set url then shift arguments				
+				export set_origin_url=1
+				export xadf_set_url="$2"
+				shift 2
+			fi
+			;;
+		-s | --clone-source ) # changes clone source url
+			if test -z "$2"
+			then # prints error if no url is provided
+				printf >&2 "Error: No custom url is set\nUsage: xadf -h\n\n"
+				exit 15
+			else # export custom url then shift arguments
+				export xadf_clone_url="$2"
+				shift 2
+			fi
 			;;
 		# Modifiers for default git alias
 		-c | --custom-seat )
@@ -407,9 +505,17 @@ done
 # Main section
 # Check state variables, and decide what function to call.
 
+if test $init_bare -eq 1
+then
+	xadf_init_bare
+fi
+
 if test $install_mode -eq 1
 then
 	xadf_install
+elif test $install_mode -eq 2
+then
+	xadf_custom_install
 fi
 
 if test $build_recipe -eq 1
@@ -422,12 +528,12 @@ then
 	xadf_build_xadfrc
 fi
 
-if test $is_heno -eq 1
+if test $touch_bashrc -eq 1
 then
-	if test -n "$xadfdir"
-	then # xadfdir is set, xadf will call itself as an alias
-		xadf remote set-url origin $xadf_ssh_repo
-	else # is set in installation, will call the raw commands
-		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin $xadf_ssh_repo
-	fi
+	xadf_touch_bashrc
+fi
+
+if test $vanilla_xadf -eq 1 || test $set_origin_url -eq 1
+then
+	xadf_touch_origin
 fi
