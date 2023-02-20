@@ -469,6 +469,7 @@ while :; do
 			else # export custom url then shift arguments
 				export xadf_clone_url="$2"
 				shift 2
+			fi
 			;;
 		# Modifiers for default git alias
 		-c | --custom-seat )
