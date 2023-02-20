@@ -1,0 +1,10 @@
+# Default gitroutes
+# Designed specifically for xadf repository
+# Should be workable for other repositories
+# Usage:
+#  gitstager <source> <target>
+# Merges <source> branch into <target> branch
+
+gitstager development trunk
+gitstager trunk master
+gitstager trunk termux
