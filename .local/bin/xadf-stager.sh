@@ -10,6 +10,8 @@ then
   echo "Not in a git repo!" >&2
   exit 1
 else
+  printf "checkout '%s'..." "$target"
+  printf "merge '%s'" "$source"
   git checkout $target && \
   git pull && \
   git merge $source && \
