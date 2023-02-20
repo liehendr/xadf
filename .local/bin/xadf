@@ -416,6 +416,7 @@ while :; do
 		--init-bare )
 			export init_bare=1
 			shift
+			;;
 		--xadf-repo ) # changes upstream url
 			export vanilla_xadf=1
 			shift
