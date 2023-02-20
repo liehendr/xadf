@@ -43,6 +43,7 @@ version="v1.1.20230220"
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
+touch_bashrc=0
 install_mode=0
 install_seat="$HOME/xadf"
 install_branch="trunk"
@@ -79,6 +80,22 @@ then
 	exit 5
 else
 	printf "[xadf]: DONE\n"
+fi
+}
+
+xadf_touch_bashrc(){
+# 9. If .bashrc does not contain . ~/.config/xadf/xadfrc, appends that
+#    line to the end of ~/.bashrc. Note that it should at first strip all
+#    comments off by piping to sed (does not modify .bashrc) and then
+#    performs grep search
+printf "[xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
+sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
+test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
+if test $? -gt 0
+then
+	printf "[xadf]: xadfrc is already sourced...OK\n"
+else
+	printf "[xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
 fi
 }
 
@@ -180,15 +197,7 @@ test ! -f "$HOME/.bashrc" && cp /etc/skel/.bashrc ~/.bashrc
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "[xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
-sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
-test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
-if test $? -gt 0
-then
-	printf "[xadf]: xadfrc is already sourced...OK\n"
-else
-	printf "[xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
-fi
+xadf_touch_bashrc && export touch_bashrc=0
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
 test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
@@ -291,6 +300,8 @@ Normal usage options:
                             \$xadfmods/default-recipe.txt
   --build-xadfrc/-x         Produce \$xadfconfig/xadfrc by constructing from
                             \$xadfmods/template-xadfrc
+  --touch-bashrc/-t         Modify .bashrc to include a line to source xadfrc
+                            if it is not already present.
   --custom-seat/-c DIR      Sets xadf git directory to DIR. Unlike --seat,
                             the next options will be assumed to be git
                             commands. Useful to use an alternative git
@@ -382,6 +393,10 @@ while :; do
 			export build_xadfrc=1
 			shift
 			;;
+		-t | --touch-bashrc )
+			export touch_bashrc=1
+			shift
+			;;
 		--xadf-repo ) # changes upstream url
 			export vanilla_xadf=1
 			shift
@@ -443,6 +458,11 @@ fi
 if test $build_xadfrc -eq 1
 then
 	xadf_build_xadfrc
+fi
+
+if test $touch_bashrc -eq 1
+then
+	xadf_touch_bashrc
 fi
 
 if test $vanilla_xadf -eq 1 || test $set_origin_url -eq 1
