@@ -146,16 +146,16 @@ else
 	chmod +x ~/.local/bin/xadf
 	# Download supporting files required to create basic configuration
 	printf "[xadf]: Download required files...\n"
-	curl -o ~/.local/templates/bash_aliases https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_aliases
-	curl -o ~/.local/templates/bash_functions https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_functions
-	curl -o ~/.local/templates/default-recipe.txt https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/default-recipe.txt
-	curl -o ~/.local/templates/template-xadfrc https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/template-xadfrc
+	curl -o ~/.local/xadf/templates/bash_aliases       https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_aliases
+	curl -o ~/.local/xadf/templates/bash_functions     https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_functions
+	curl -o ~/.local/xadf/templates/default-recipe.txt https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/default-recipe.txt
+	curl -o ~/.local/xadf/templates/template-xadfrc    https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/template-xadfrc
 
 	# Checkpoint, if either one of them does not exist, it is a failed download.
-	if test ! -f ~/.local/templates/bash_aliases || \
-	   test ! -f ~/.local/templates/bash_functions || \
-	   test ! -f ~/.local/templates/default-recipe.txt || \
-	   test ! -f ~/.local/templates/template-xadfrc
+	if test ! -f ~/.local/xadf/templates/bash_aliases || \
+	   test ! -f ~/.local/xadf/templates/bash_functions || \
+	   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
+	   test ! -f ~/.local/xadf/templates/template-xadfrc
 	then
 		printf "[xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
 		exit 17
