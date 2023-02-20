@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version="v1.1.20230220.1708+clone_url"
+version="v1.1.20230220.2344+minimal_install"
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -121,6 +121,53 @@ test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
 printf "[xadf]: Touching ~/.bashrc\n"
 xadf_touch_bashrc
 printf "[xadf]: You may want to source your ~/.bashrc\n"
+}
+
+xadf_minimal_install(){
+printf "[xadf]: WARNING! Will only obtain most required files for proper functioning of xadf\n"
+# Create required directories
+printf "[xadf]: Recreate basic required directory structures\n"
+mkdir ~/.local ~/.local/{bin,xadf} ~/.local/xadf/templates
+
+# Download the latest version of xadf binary
+printf "[xadf]: Obtain the latest xadf binary from branch '%s'\n" "$install_branch"
+printf "[xadf]: For security reasons, the link is hardcoded except for branch\n"
+
+# A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
+# is specified with --seat
+curl -o ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
+if test $? -gt 0
+then
+	printf "[xadf]: WARNING! File not found! Aborting...\n" >&2
+	printf "[xadf]: WARNING! You may either try running without '--branch/b' option or try using '--branch development'\n" >&2
+	exit 16
+else
+	printf "[xadf]: Make xadf binary executable\n"
+	chmod +x ~/.local/bin/xadf
+	# Download supporting files required to create basic configuration
+	printf "[xadf]: Download required files...\n"
+	curl -o ~/.local/xadf/templates/bash_aliases       https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_aliases
+	curl -o ~/.local/xadf/templates/bash_functions     https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_functions
+	curl -o ~/.local/xadf/templates/default-recipe.txt https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/default-recipe.txt
+	curl -o ~/.local/xadf/templates/template-xadfrc    https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/template-xadfrc
+
+	# Checkpoint, if either one of them does not exist, it is a failed download.
+	if test ! -f ~/.local/xadf/templates/bash_aliases || \
+	   test ! -f ~/.local/xadf/templates/bash_functions || \
+	   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
+	   test ! -f ~/.local/xadf/templates/template-xadfrc
+	then
+		printf "[xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
+		exit 17
+	fi
+	printf "[xadf]: Download completed! You may want to check if ~/.local/bin is in your path. If it isn't, you can do:\n"
+	printf "[xadf]:   PATH=\"~/.local/bin:\$PATH\""
+	printf "[xadf]: Afterwards you may want to initialize a bare git repository with:\n"
+	printf "[xadf]:   xadf --init-bare [--seat DIR]\n"
+	printf "[xadf]:   xadf --custom-install [--seat DIR]\n"
+	printf "[xadf]: Or download from your existing dotfiles repo and set xadf as its manager with:\n"
+	printf "[xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
+fi
 }
 
 xadf_clone_source(){
@@ -338,6 +385,11 @@ Normal usage options:
   --custom-install          Configure xadf to load from a non-xadf bare git
                             repository. May be used in conjuction with --seat
 							to specify custom git directory.
+  --minimal-install         Configure xadf to install bare minimum files that
+                            is required for xadf to configure itself. It also
+                            honors '--branch/-b BRANCH' option. Note that the
+                            selected BRANCH is the BRANCH of xadf original
+                            repository. If none is set, defaults to 'trunk'
   --custom-seat/-c DIR      Sets xadf git directory to DIR. Unlike --seat,
                             the next options will be assumed to be git
                             commands. Useful to use an alternative git
@@ -409,6 +461,10 @@ while :; do
 			;;
 		--custom-install ) # performs custom xadf install
 			export install_mode=2
+			shift
+			;;
+		--minimal-install ) # performs custom xadf install
+			export install_mode=3
 			shift
 			;;
 		--seat ) # set git dir to DIR
@@ -516,6 +572,9 @@ then
 elif test $install_mode -eq 2
 then
 	xadf_custom_install
+elif test $install_mode -eq 3
+then
+	xadf_minimal_install
 fi
 
 if test $build_recipe -eq 1

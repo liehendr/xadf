@@ -4,6 +4,11 @@
 # Usage:
 #  gitstager <source> <target>
 # Merges <source> branch into <target> branch
+#
+# This file should be invoked by gitbot:
+#   gitbot <route.txt> <base branch>
+# Default is:
+#   gitbot $xadfconfig/gitroutes.txt development
 
 gitstager development trunk
 gitstager trunk master
