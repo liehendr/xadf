@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version="v1.1.20230220"
+version="v1.1.20230220.1708+custom_install"
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -110,6 +110,17 @@ xadf_init_bare(){
 	else
 		printf "[xadf]: Initialize a bare directory at '%s'...OK\n" "$install_seat"
 	fi
+}
+
+xadf_custom_install(){
+printf "[xadf]: Sets up xadf configuration to load from a non-xadf based repository at '%s'\n" "$install_seat"
+printf "[xadf]: Updates xadfrc\n"
+xadf_build_xadfrc
+printf "[xadf]: Ensures recipe.txt is present\n"
+test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
+printf "[xadf]: Touching ~/.bashrc\n"
+xadf_touch_bashrc
+printf "[xadf]: You may want to source your ~/.bashrc\n"
 }
 
 xadf_install(){
@@ -317,7 +328,10 @@ Normal usage options:
                             if it is not already present.
   --init-bare               Initialize a bare git repository at \$HOME. Can be
                             used in conjuction with --seat option to specify
-                            custom location.                Default: \$HOME/xadf
+                            custom git directory.
+  --custom-install          Configure xadf to load from a non-xadf bare git
+                            repository. May be used in conjuction with --seat
+							to specify custom git directory.
   --custom-seat/-c DIR      Sets xadf git directory to DIR. Unlike --seat,
                             the next options will be assumed to be git
                             commands. Useful to use an alternative git
@@ -379,6 +393,10 @@ while :; do
 		# Functions that modify script states but does not immediately break
 		-i | --install ) # performs xadf install
 			export install_mode=1
+			shift
+			;;
+		--custom-install ) # performs custom xadf install
+			export install_mode=2
 			shift
 			;;
 		--seat ) # set git dir to DIR
@@ -465,9 +483,17 @@ done
 # Main section
 # Check state variables, and decide what function to call.
 
+if test $init_bare -eq 1
+then
+	xadf_init_bare
+fi
+
 if test $install_mode -eq 1
 then
 	xadf_install
+elif test $install_mode -eq 2
+then
+	xadf_custom_install
 fi
 
 if test $build_recipe -eq 1
@@ -483,11 +509,6 @@ fi
 if test $touch_bashrc -eq 1
 then
 	xadf_touch_bashrc
-fi
-
-if test $init_bare -eq 1
-then
-	xadf_init_bare
 fi
 
 if test $vanilla_xadf -eq 1 || test $set_origin_url -eq 1
