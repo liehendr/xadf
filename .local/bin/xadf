@@ -40,7 +40,7 @@
 
 # Define state variables
 version="2023-02-18"
-is_heno=0
+vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
 install_mode=0
@@ -48,6 +48,7 @@ install_seat="$HOME/xadf"
 install_branch="trunk"
 xadf_clone_url="https://gitlab.com/heno72/xadf.git"
 xadf_set_url="git@gitlab.com:heno72/xadf.git"
+set_origin_url=0
 
 # Make necessary directories
 test ! -d ~/.config && mkdir ~/.config
@@ -198,6 +199,15 @@ printf "[xadf]: Installation of xadf is completed, checked out branch is '%s'\n"
 printf "[xadf]: You may want to source your ~/.bashrc\n"
 }
 
+xadf_touch_origin(){
+	if test -n "$xadfdir"
+	then # xadfdir is set, xadf will call itself as an alias
+		xadf remote set-url origin $xadf_set_url
+	else # is set in installation, will call the raw commands
+		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin $xadf_set_url
+	fi
+}
+
 xadf_version(){
 # prints version, then exit
 printf "xadf version %s\n\n" "$version"
@@ -227,7 +237,7 @@ EXAMPLES
   --> installs xadf, and sets up git directory for xadf to \$HOME/.dotfiles
       instead of \$HOME/xadf
 
-  ~$ xadf --build-xadfrc --heno
+  ~$ xadf --build-xadfrc --xadf-repo
   --> generates xadfrc and save it to ~/.config/xadf/xadfrc and change upstream
       link to git@gitlab.com:heno72/xadf.git
 
@@ -281,17 +291,19 @@ Normal usage options:
                             \$xadfmods/default-recipe.txt
   --build-xadfrc/-x         Produce \$xadfconfig/xadfrc by constructing from
                             \$xadfmods/template-xadfrc
-  --heno                    Essentially an alias for:
-                              xadf remote set-url origin \\
-                              git@gitlab.com:heno72/xadf.git
-                            WARNING: This is for my personal needs. Don't use
-                            this if you don't have write access there! If so
-                            desired, you can change the option or the url to
-                            your own.
   --custom-seat/-c DIR      Sets xadf git directory to DIR. Unlike --seat,
                             the next options will be assumed to be git
 							commands. Useful to use an alternative git
 							directory.
+  --set-origin-url/-s URL   Essentially an alias for:
+							  xadf remote set-url origin URL
+							Changes remote url to the specified URL.
+  --xadf-repo               Essentially an alias for:
+                              xadf remote set-url origin \\
+                              git@gitlab.com:heno72/xadf.git
+                            You may not wish to use default clone url. If you
+							want to use your own url, check option
+							'--set-origin-url/-s' instead.
   --help/-h                 Display this help text and then exit
   --usage                   Display usage examples and then exit
   --version/-v              Prints version and then exit
@@ -370,9 +382,20 @@ while :; do
 			export build_xadfrc=1
 			shift
 			;;
-		--heno ) # changes upstream url
-			export is_heno=1
+		--xadf-repo ) # changes upstream url
+			export vanilla_xadf=1
 			shift
+			;;
+		-s | --set-origin-url ) # changes upstream url
+			if test -z "$2"
+			then # prints error if no url is provided
+				printf >&2 "Error: No custom url is set\nUsage: xadf -h\n\n"
+				exit 14
+			else # export states and set url then shift arguments				
+				export set_origin_url=1
+				export xadf_set_url="$2"
+				shift 2
+			fi
 			;;
 		# Modifiers for default git alias
 		-c | --custom-seat )
@@ -422,12 +445,7 @@ then
 	xadf_build_xadfrc
 fi
 
-if test $is_heno -eq 1
+if test $vanilla_xadf -eq 1 || test $set_origin_url -eq 1
 then
-	if test -n "$xadfdir"
-	then # xadfdir is set, xadf will call itself as an alias
-		xadf remote set-url origin $xadf_set_url
-	else # is set in installation, will call the raw commands
-		git --git-dir="$install_seat" --work-tree="$HOME" remote set-url origin $xadf_set_url
-	fi
+	xadf_touch_origin
 fi
