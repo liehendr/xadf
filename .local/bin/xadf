@@ -115,7 +115,7 @@ xadf_init_bare(){
 xadf_custom_install(){
 printf "[xadf]: Sets up xadf configuration to load from a non-xadf based repository at '%s'\n" "$install_seat"
 printf "[xadf]: Updates xadfrc\n"
-xadf_build_xadfrc && export xadfdir="$install_seat"
+xadf_build_xadfrc
 printf "[xadf]: Ensures recipe.txt is present\n"
 test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
 printf "[xadf]: Touching ~/.bashrc\n"
