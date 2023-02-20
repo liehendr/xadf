@@ -293,17 +293,17 @@ Normal usage options:
                             \$xadfmods/template-xadfrc
   --custom-seat/-c DIR      Sets xadf git directory to DIR. Unlike --seat,
                             the next options will be assumed to be git
-							commands. Useful to use an alternative git
-							directory.
+                            commands. Useful to use an alternative git
+                            directory.
   --set-origin-url/-s URL   Essentially an alias for:
-							  xadf remote set-url origin URL
-							Changes remote url to the specified URL.
+                              xadf remote set-url origin URL
+                            Changes remote url to the specified URL.
   --xadf-repo               Essentially an alias for:
                               xadf remote set-url origin \\
                               git@gitlab.com:heno72/xadf.git
                             You may not wish to use default clone url. If you
-							want to use your own url, check option
-							'--set-origin-url/-s' instead.
+                            want to use your own url, check option
+                            '--set-origin-url/-s' instead.
   --help/-h                 Display this help text and then exit
   --usage                   Display usage examples and then exit
   --version/-v              Prints version and then exit
