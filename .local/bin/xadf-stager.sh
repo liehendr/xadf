@@ -2,8 +2,8 @@
 
 # stager <source> <target>
 gitstager(){
-test -z "$1" && local source="trunk"
-test -z "$2" && local target="master"
+local source="$1" && test -z "$1" && local source="trunk"
+local target="$2" && test -z "$2" && local target="master"
 
 if [ ! -f ".git/config" ]
 then
