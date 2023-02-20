@@ -101,14 +101,14 @@ fi
 }
 
 xadf_init_bare(){
-	printf "[xadf]: Initialize a bare directory at '%s'..." "$install_seat"
+	printf "[xadf]: Initialize a bare directory at '%s'\n" "$install_seat"
 	git init --bare "$install_seat"
 	if test $? -gt 0
 	then
-		printf "FAIL\n"
+		printf >&2 "[xadf]: Failed to initialize a bare directory at '%s'\n" "$install_seat"
 		exit 15
 	else
-		printf "OK\n"
+		printf "[xadf]: Initialize a bare directory at '%s'...OK\n" "$install_seat"
 	fi
 }
 
