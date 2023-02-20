@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version="2023-02-18"
+version="v1.1.$(xadf rev-parse --short HEAD)"
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
