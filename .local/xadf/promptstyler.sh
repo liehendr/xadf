@@ -60,20 +60,20 @@ then
     then
         test "$verbosity" = "v" && echo "In Termux"
         unset PS1 user_color
-        PS1="$xadf_termux_prompt"
+        export PS1="$xadf_termux_prompt"
     fi
 elif [[ "$xadf_distro_name" == "Arch Linux" ]]
 then # Most likely in Arch
     test "$verbosity" = "v" && echo "In Arch"
     unset PS1 user_color
-    user_color=$cyan
-    PS1="$xadf_archlike_prompt"
+    export user_color=$cyan
+    export PS1="$xadf_archlike_prompt"
 elif [[ "$xadf_distro_name" == "Fedora Linux" ]]
 then # Most likely in Fedora
     test "$verbosity" = "v" && echo "In Fedora"
     unset PS1 user_color
-    user_color=$magenta
-    PS1="$xadf_archlike_prompt"
+    export user_color=$magenta
+    export PS1="$xadf_archlike_prompt"
 elif [[ "$xadf_distro_name" == "Ubuntu" ]]
 then # Most likely in Ubuntu
     test "$verbosity" = "v" && echo "In Ubuntu, uses default"
@@ -83,7 +83,7 @@ then # Most likely in Ubuntu
 else # We are not sure which linux are we running on
     test "$verbosity" = "v" && echo "Not sure where"
     unset PS1 user_color
-    user_color=$spacedust
-    PS1="$xadf_archlike_prompt"
+    export user_color=$spacedust
+    export PS1="$xadf_archlike_prompt"
 fi
 }
