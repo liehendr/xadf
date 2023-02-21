@@ -50,7 +50,7 @@ xadf_archlike_prompt="\[$reset\]\[$cyan\][\[$bold\]\[$user_color\]\u@\h\\[$reset
 xadf_termux_prompt="\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]$\[\e[0m\] "
 xadf_ubuntu_prompt="\[$reset\]\[$user_color\]\[$bold\]\u@\h\[$reset\]:\[$blue\]\[$bold\]\w\[$reset\]\\$ "
 
-promptstyler(){
+# promptstyler(){
 test -n "$1" && verbosity="$1"
 
 if [ -z "$xadf_distro_name" ] # most probably running termux
@@ -86,4 +86,4 @@ else # We are not sure which linux are we running on
     export user_color=$spacedust
     export PS1="$xadf_archlike_prompt"
 fi
-}
+# }
