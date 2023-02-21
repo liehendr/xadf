@@ -49,6 +49,7 @@ xadf_distro_name=$(grep ^NAME /etc/os-release|sed 's_^NAME=__;s_\"__g')
 xadf_archlike_prompt="\[$reset\]\[$cyan\][\[$bold\]\[$user_color\]\u@\h\\[$reset\]\[$blue\]\[$bold\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
 xadf_termux_prompt="\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]$\[\e[0m\] "
 xadf_ubuntu_prompt="\[$reset\]\[$user_color\]\[$bold\]\u@\h\[$reset\]:\[$blue\]\[$bold\]\w\[$reset\]\\$ "
+xadf_default_ubuntu_prompt="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 
 promptstyler(){
 test -n "$1" && verbosity="$1"
@@ -76,10 +77,10 @@ then # Most likely in Fedora
     export PS1="$xadf_archlike_prompt"
 elif [[ "$xadf_distro_name" == "Ubuntu" ]]
 then # Most likely in Ubuntu
-    test "$verbosity" = "v" && echo "In Ubuntu, uses default"
-    # unset PS1
-    # user_color=$spacedust
-    # PS1="$xadf_ubuntu_prompt"
+    test "$verbosity" = "v" && echo "In Ubuntu"
+    unset PS1
+    user_color=$spacedust
+    PS1="$xadf_default_ubuntu_prompt"
 else # We are not sure which linux are we running on
     test "$verbosity" = "v" && echo "Not sure where"
     unset PS1 user_color
