@@ -46,12 +46,15 @@ spacedust=$(tput setaf 246)
 
 # Now we want to filter the kinds of operating system we're on
 xadf_distro_name=$(grep ^NAME /etc/os-release|sed 's_^NAME=__;s_\"__g')
-xadf_arch_prompt="\[$reset\]\[$cyan\][\[$bold\]\[$user_color\]\u@\h\\[$reset\]\[$blue\]\[$bold\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
-xadf_arch_plain_prompt='[\u@\h \W]\$ '
-xadf_fedora_prompt="\[$reset\]\[$cyan\][\[$user_color\]\u@\h\\[$reset\]\[$blue\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
-xadf_termux_prompt="\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]$\[\e[0m\] "
-xadf_ubuntu_prompt="\[$reset\]\[$user_color\]\[$bold\]\u@\h\[$reset\]:\[$blue\]\[$bold\]\w\[$reset\]\\$ "
-xadf_default_ubuntu_prompt="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+
+# Prompts, different style of (as an associative array)
+declare -A xadf_prompt
+xadf_prompt[arch]="\[$reset\]\[$cyan\][\[$bold\]\[$user_color\]\u@\h\\[$reset\]\[$blue\]\[$bold\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
+xadf_prompt[arch_plain]='[\u@\h \W]\$ '
+xadf_prompt[fedora]="\[$reset\]\[$cyan\][\[$user_color\]\u@\h\\[$reset\]\[$blue\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
+xadf_prompt[termux]="\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]$\[\e[0m\] "
+xadf_prompt[ubuntu]="\[$reset\]\[$user_color\]\[$bold\]\u@\h\[$reset\]:\[$blue\]\[$bold\]\w\[$reset\]\\$ "
+xadf_prompt[ubuntu_default]="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 
 promptstyler(){
 test -n "$1" && verbosity="$1"
@@ -63,30 +66,30 @@ then
     then
         test "$verbosity" = "v" && echo "In Termux"
         unset PS1 user_color
-        export PS1="$xadf_termux_prompt"
+        export PS1="${xadf_prompt[termux]}"
     fi
 elif [[ "$xadf_distro_name" == "Arch Linux" ]]
 then # Most likely in Arch
     test "$verbosity" = "v" && echo "In Arch"
     unset PS1 user_color
     export user_color=$cyan
-    export PS1="$xadf_arch_prompt"
+    export PS1="${xadf_prompt[arch]}"
 elif [[ "$xadf_distro_name" == "Fedora Linux" ]]
 then # Most likely in Fedora
     test "$verbosity" = "v" && echo "In Fedora"
     unset PS1 user_color
     export user_color=$magenta
-    export PS1="$xadf_fedora_prompt"
+    export PS1="${xadf_prompt[fedora]}"
 elif [[ "$xadf_distro_name" == "Ubuntu" ]]
 then # Most likely in Ubuntu
     test "$verbosity" = "v" && echo "In Ubuntu"
     unset PS1
     user_color=$spacedust
-    PS1="$xadf_default_ubuntu_prompt"
+    PS1="${xadf_prompt[ubuntu_default]}"
 else # We are not sure which linux are we running on
     test "$verbosity" = "v" && echo "Not sure where"
     unset PS1 user_color
     export user_color=$spacedust
-    export PS1="$xadf_arch_plain_prompt"
+    export PS1="${xadf_prompt[arch_plain]}"
 fi
 }

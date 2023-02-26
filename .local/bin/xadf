@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version="v1.1.20230220.2344+minimal_install"
+version=v1.10.20230226.0321+wget_minimal_install
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -123,16 +123,7 @@ xadf_touch_bashrc
 printf "[xadf]: You may want to source your ~/.bashrc\n"
 }
 
-xadf_minimal_install(){
-printf "[xadf]: WARNING! Will only obtain most required files for proper functioning of xadf\n"
-# Create required directories
-printf "[xadf]: Recreate basic required directory structures\n"
-mkdir ~/.local ~/.local/{bin,xadf} ~/.local/xadf/templates
-
-# Download the latest version of xadf binary
-printf "[xadf]: Obtain the latest xadf binary from branch '%s'\n" "$install_branch"
-printf "[xadf]: For security reasons, the link is hardcoded except for branch\n"
-
+xadf_curl_download(){
 # A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
 # is specified with --seat
 curl -o ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
@@ -167,6 +158,69 @@ else
 	printf "[xadf]:   xadf --custom-install [--seat DIR]\n"
 	printf "[xadf]: Or download from your existing dotfiles repo and set xadf as its manager with:\n"
 	printf "[xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
+fi
+}
+
+xadf_wget_download(){
+# A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
+# is specified with --seat
+wget -P ~/.local/bin/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
+if test $? -gt 0
+then
+	printf "[xadf]: WARNING! File not found! Aborting...\n" >&2
+	printf "[xadf]: WARNING! You may either try running without '--branch/b' option or try using '--branch development'\n" >&2
+	exit 18
+else
+	printf "[xadf]: Make xadf binary executable\n"
+	chmod +x ~/.local/bin/xadf
+	# Download supporting files required to create basic configuration
+	printf "[xadf]: Download required files...\n"
+	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_aliases
+	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_functions
+	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/default-recipe.txt
+	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/template-xadfrc
+
+	# Checkpoint, if either one of them does not exist, it is a failed download.
+	if test ! -f ~/.local/xadf/templates/bash_aliases || \
+	   test ! -f ~/.local/xadf/templates/bash_functions || \
+	   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
+	   test ! -f ~/.local/xadf/templates/template-xadfrc
+	then
+		printf "[xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
+		exit 19
+	fi
+	printf "[xadf]: Download completed! You may want to check if ~/.local/bin is in your path. If it isn't, you can do:\n"
+	printf "[xadf]:   PATH=\"~/.local/bin:\$PATH\""
+	printf "[xadf]: Afterwards you may want to initialize a bare git repository with:\n"
+	printf "[xadf]:   xadf --init-bare [--seat DIR]\n"
+	printf "[xadf]:   xadf --custom-install [--seat DIR]\n"
+	printf "[xadf]: Or download from your existing dotfiles repo and set xadf as its manager with:\n"
+	printf "[xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
+fi
+}
+
+xadf_minimal_install(){
+printf "[xadf]: WARNING! Will only obtain most required files for proper functioning of xadf\n"
+# Create required directories
+printf "[xadf]: Recreate basic required directory structures\n"
+mkdir ~/.local ~/.local/{bin,xadf} ~/.local/xadf/templates
+
+# Download the latest version of xadf binary
+printf "[xadf]: Obtain the latest xadf binary from branch '%s'\n" "$install_branch"
+printf "[xadf]: For security reasons, the link is hardcoded except for branch\n"
+
+# If wget exists, use wget
+# Otherwise try curl
+# Otherwise scream
+if which wget > /dev/null;
+then
+  xadf_wget_download
+elif which curl > /dev/null;
+then
+  xadf_curl_download
+else
+  printf "[xadf]: WARNING! Neither wget or curl exists!\n[xadf]: Please install either one of them. Aborting...\n"
+  exit 20
 fi
 }
 
