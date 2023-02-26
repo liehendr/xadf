@@ -1,0 +1,145 @@
+#!/bin/bash
+
+REPOUP_SEAT="$HOME/.config/repoup"
+REPOUP_DEFAULT_DIRECTORY="$PWD"
+REPOUP_DEFAULT_PREFIX="etc"
+REPOUP_DRYRUN=0
+REPOUP_VERSION="0.1"
+
+# Make required directories if nonexistent
+if [ ! -d "${REPOUP_SEAT}" ]
+then
+  mkdir "${REPOUP_SEAT}"
+fi
+
+if [ ! -d "${REPOUP_SEAT}/log" ]
+then
+  mkdir "${REPOUP_SEAT}/log"
+fi
+
+# For timestamping purposes
+pulltimestamp(){
+jobtime="$(date +'%Y-%m-%d %H:%M:%S')"
+echo "[Current Time]: $jobtime"
+}
+
+# Function usage:
+# repoupdate <target dir>
+# Where <target dir> is a directory of git repos
+# Then the function will loop through all directories inside
+# <target dir> and perform git pull on each of them
+repoupdate(){
+# Anchor the script to a location
+olddir="$(pwd)"
+DIR="$1"
+# failsafe - fall back to current directory
+[ "$DIR" == "" ] && DIR="."
+# Assumes current working directory contains only git repos
+repos=( "$DIR"/* )
+# loop through all the files and check if it is a git repo.
+# Then get inside and pull if it is a git repo
+for repo in ${repos[@]}
+do
+  if [ -d "$repo/.git" ]
+  then
+    cd $repo
+    # Timestamping
+    pulltimestamp
+    echo "[reposupdate]: git pull on $repo"
+    if [ $REPOUP_DRYRUN = 1 ]
+    then
+      echo "[$repo]: git pull"
+    else
+      git pull
+    fi
+  else
+    printf >&2 "[reposupdate]: '%s' is not a git repository.\n    Skipping...\n" "$repo"
+  fi
+# Get back to anchor point
+cd $olddir
+done
+}
+
+# Actually pull repos from a specified working directory
+git_puller(){
+  [[ "$REPOUP_TARGET" == "" ]] && REPOUP_TARGET="${REPOUP_DEFAULT_DIRECTORY}"
+  [[ "$REPOUP_LOGFILE_PREFIX" == "" ]] && REPOUP_LOGFILE_PREFIX="${REPOUP_DEFAULT_PREFIX}"
+  REPOUP_LOGFILE="${REPOUP_SEAT}/log/gitpuller_${REPOUP_LOGFILE_PREFIX}-$(date +'%Y%m%d-%H%M').log"
+
+  if [ $REPOUP_DRYRUN = 1 ]
+  then
+    echo "[$0]: Logging into logfile: ${REPOUP_LOGFILE}"
+  fi
+  # perhaps we can later configure it to not produce log files?
+  repoupdate "$REPOUP_TARGET" | tee "${REPOUP_LOGFILE}"
+}
+
+REPOUP_SHOW_HELP(){
+cat << EOF
+$0 version $REPOUP_VERSION
+
+  A tool to quickly pull all repositories in a directory. Will shift through
+  all files in a directory (not recursive), and check whether or not they are
+  git repositories. If they are, perform git pull on each of them.
+
+Usage:
+
+  $0 -d "/path/to/repo/collection" -p other_repos
+
+Options:
+
+  --help/-h                  prints this message and exit
+  --target-directory/-d      directory to look for git repositories.     default: ${REPOUP_DEFAULT_DIRECTORY}
+                             If none is set, defaults to \$PWD
+  --prefix/-p                shortcode for repository group              default: ${REPOUP_DEFAULT_PREFIX}
+  --dry-run/-n               dry-run, print options and commands for sanity check
+  --version/-v               prints version and exit
+
+EOF
+}
+
+## Parsing options
+while :; do
+  case $1 in
+    -h | --help )
+      REPOUP_SHOW_HELP
+      exit 0
+      ;;
+    -d | --target-directory )
+      if [[ -n "$2" ]]
+      then
+        export REPOUP_TARGET="$2"
+        shift 2
+      fi
+      ;;
+    -p | --prefix )
+      if [[ -n "$2" ]]
+      then
+        export REPOUP_LOGFILE_PREFIX="$2"
+        shift 2
+      fi
+      ;;
+    -n | --dry-run )
+      export REPOUP_DRYRUN=1
+      shift
+      ;;
+    -v | --version )
+      printf "$0 version %s\n" "$REPOUP_VERSION"
+      exit 0
+      ;;
+    -- ) # end of all options
+      shift
+      break
+      ;;
+    -* ) # invalid options
+      printf >&2 "Error: Invalid flag '%s'\n\n" "$1"
+      REPOUP_SHOW_HELP
+      exit 1
+      ;;
+    * ) # default case, if no more options then break
+      break
+      ;;
+  esac
+done
+
+git_puller

@@ -9,6 +9,10 @@ function echoerr { echo "$@" >&2; }
 ########################################################################
 ## Do some calculation with bc
 ########################################################################
+function bcalc {
+bc -lq $@
+}
+
 ## This function loads xbc extensions first
 function bcxt {
 bc -lq ~/.local/share/bc/extensions.bc $@
