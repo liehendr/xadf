@@ -6,7 +6,7 @@ test ! -d "\$HOME/.local" && mkdir "\$HOME/.local"
 test ! -d "\$HOME/.local/bin" && mkdir "\$HOME/.local/bin"
 
 # Custom PATH: if \$HOME/.local/bin is not present in \$PATH, include it
-test -z "$(echo \$PATH|grep "\$HOME/\.local/bin")" && PATH="\$HOME/.local/bin:\$PATH"
+test -z "\$(echo \$PATH|grep "\$HOME/\.local/bin")" && PATH="\$HOME/.local/bin:\$PATH"
 
 # xadf variable declarations
 declare -x xadfconfig="\$HOME/.config/xadf"
