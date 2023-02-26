@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.10.20230226.0321+wget_minimal_install
+version=v1.11.20230226.2241+minimal_install
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -60,27 +60,27 @@ test ! -d ~/.local/xadf && mkdir ~/.local/xadf
 
 xadf_build_recipe(){
 # builds recipe
-printf "[xadf]: Generate recipe...\n"
+printf "===> [xadf]: Generate recipe...\n"
 cp ~/.local/xadf/templates/default-recipe.txt ~/.config/xadf/recipe.txt
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "===> [xadf]: FAIL\n"
 	exit 4
 else
-	printf "[xadf]: DONE\n"
+	printf "===> [xadf]: DONE\n"
 fi
 }
 
 xadf_build_xadfrc(){
 # builds xadfrc
-printf "[xadf]: Generate xadfrc...\n"
+printf "===> [xadf]: Generate xadfrc...\n"
 . ~/.local/xadf/templates/template-xadfrc | sed "s#$HOME#\$HOME#" > ~/.config/xadf/xadfrc
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "===> [xadf]: FAIL\n"
 	exit 5
 else
-	printf "[xadf]: DONE\n"
+	printf "===> [xadf]: DONE\n"
 fi
 }
 
@@ -89,38 +89,59 @@ xadf_touch_bashrc(){
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "[xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
+printf "===> [xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
 sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
 test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
 if test $? -gt 0
 then
-	printf "[xadf]: xadfrc is already sourced...OK\n"
+	printf "===> [xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "[xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
+	printf "===> [xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
 fi
 }
 
 xadf_init_bare(){
-	printf "[xadf]: Initialize a bare directory at '%s'\n" "$install_seat"
+	printf "===> [xadf]: Initialize a bare directory at '%s'\n" "$install_seat"
 	git init --bare "$install_seat"
 	if test $? -gt 0
 	then
-		printf >&2 "[xadf]: Failed to initialize a bare directory at '%s'\n" "$install_seat"
+		printf >&2 "===> [xadf]: Failed to initialize a bare directory at '%s'\n" "$install_seat"
 		exit 15
 	else
-		printf "[xadf]: Initialize a bare directory at '%s'...OK\n" "$install_seat"
+		printf "===> [xadf]: Initialize a bare directory at '%s'...OK\n" "$install_seat"
 	fi
 }
 
 xadf_custom_install(){
-printf "[xadf]: Sets up xadf configuration to load from a non-xadf based repository at '%s'\n" "$install_seat"
-printf "[xadf]: Updates xadfrc\n"
+printf "===> [xadf]: Sets up xadf configuration to load from a non-xadf based repository at '%s'\n" "$install_seat"
+printf "===> [xadf]: Updates xadfrc\n"
 xadf_build_xadfrc
-printf "[xadf]: Ensures recipe.txt is present\n"
+printf "===> [xadf]: Ensures recipe.txt is present\n"
 test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
-printf "[xadf]: Touching ~/.bashrc\n"
+printf "===> [xadf]: Touching ~/.bashrc\n"
 xadf_touch_bashrc
-printf "[xadf]: You may want to source your ~/.bashrc\n"
+printf "===> [xadf]: You may want to source your ~/.bashrc\n"
+}
+
+xadf_minimal_test(){
+# Checkpoint, if either one of them does not exist, it is a failed download.
+if test ! -f ~/.local/xadf/templates/bash_aliases || \
+   test ! -f ~/.local/xadf/templates/bash_functions || \
+   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
+   test ! -f ~/.local/xadf/templates/template-xadfrc
+then
+	printf "===> [xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
+	exit 17
+fi
+
+# Tells user that download is completed and what to do afterwards
+printf "===> [xadf]: Download completed! You may want to check if ~/.local/bin is in your path. If it isn't, you can do:\n"
+printf "===> [xadf]:   PATH=\"~/.local/bin:\$PATH\""
+printf "===> [xadf]: Afterwards you may want to initialize a bare git repository with:\n"
+printf "===> [xadf]:   xadf --init-bare [--seat DIR]\n"
+printf "===> [xadf]:   xadf --custom-install [--seat DIR]\n"
+printf "===> [xadf]: Or download from your existing dotfiles repo and set xadf as its manager with:\n"
+printf "===> [xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
 }
 
 xadf_curl_download(){
@@ -129,35 +150,22 @@ xadf_curl_download(){
 curl -o ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
 if test $? -gt 0
 then
-	printf "[xadf]: WARNING! File not found! Aborting...\n" >&2
-	printf "[xadf]: WARNING! You may either try running without '--branch/b' option or try using '--branch development'\n" >&2
+	printf "===> [xadf]: WARNING! File not found! Aborting...\n" >&2
+	printf "===> [xadf]: WARNING! You may either try running without '--branch/b' option or try using '--branch development'\n" >&2
 	exit 16
 else
-	printf "[xadf]: Make xadf binary executable\n"
+	printf "===> [xadf]: Make xadf binary executable\n"
 	chmod +x ~/.local/bin/xadf
 	# Download supporting files required to create basic configuration
-	printf "[xadf]: Download required files...\n"
-	curl -o ~/.local/xadf/templates/bash_aliases       https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_aliases
-	curl -o ~/.local/xadf/templates/bash_functions     https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_functions
-	curl -o ~/.local/xadf/templates/default-recipe.txt https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/default-recipe.txt
-	curl -o ~/.local/xadf/templates/template-xadfrc    https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/template-xadfrc
+	printf "===> [xadf]: Download required files...\n"
+	for file in bash_aliases bash_functions default-recipe.txt template-xadfrc
+	do
+		curl -o ~/.local/xadf/templates/${file} \
+		https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/${file}
+	done
 
 	# Checkpoint, if either one of them does not exist, it is a failed download.
-	if test ! -f ~/.local/xadf/templates/bash_aliases || \
-	   test ! -f ~/.local/xadf/templates/bash_functions || \
-	   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
-	   test ! -f ~/.local/xadf/templates/template-xadfrc
-	then
-		printf "[xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
-		exit 17
-	fi
-	printf "[xadf]: Download completed! You may want to check if ~/.local/bin is in your path. If it isn't, you can do:\n"
-	printf "[xadf]:   PATH=\"~/.local/bin:\$PATH\""
-	printf "[xadf]: Afterwards you may want to initialize a bare git repository with:\n"
-	printf "[xadf]:   xadf --init-bare [--seat DIR]\n"
-	printf "[xadf]:   xadf --custom-install [--seat DIR]\n"
-	printf "[xadf]: Or download from your existing dotfiles repo and set xadf as its manager with:\n"
-	printf "[xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
+	xadf_minimal_test
 fi
 }
 
@@ -167,47 +175,34 @@ xadf_wget_download(){
 wget -P ~/.local/bin/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
 if test $? -gt 0
 then
-	printf "[xadf]: WARNING! File not found! Aborting...\n" >&2
-	printf "[xadf]: WARNING! You may either try running without '--branch/b' option or try using '--branch development'\n" >&2
+	printf "===> [xadf]: WARNING! File not found! Aborting...\n" >&2
+	printf "===> [xadf]: WARNING! You may either try running without '--branch/b' option or try using '--branch development'\n" >&2
 	exit 18
 else
-	printf "[xadf]: Make xadf binary executable\n"
+	printf "===> [xadf]: Make xadf binary executable\n"
 	chmod +x ~/.local/bin/xadf
 	# Download supporting files required to create basic configuration
-	printf "[xadf]: Download required files...\n"
-	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_aliases
-	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/bash_functions
-	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/default-recipe.txt
-	wget -P ~/.local/xadf/templates/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/template-xadfrc
+	printf "===> [xadf]: Download required files...\n"
+	for file in bash_aliases bash_functions default-recipe.txt template-xadfrc
+	do
+		wget -P ~/.local/xadf/templates/ \
+		https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/${file}
+	done
 
 	# Checkpoint, if either one of them does not exist, it is a failed download.
-	if test ! -f ~/.local/xadf/templates/bash_aliases || \
-	   test ! -f ~/.local/xadf/templates/bash_functions || \
-	   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
-	   test ! -f ~/.local/xadf/templates/template-xadfrc
-	then
-		printf "[xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
-		exit 19
-	fi
-	printf "[xadf]: Download completed! You may want to check if ~/.local/bin is in your path. If it isn't, you can do:\n"
-	printf "[xadf]:   PATH=\"~/.local/bin:\$PATH\""
-	printf "[xadf]: Afterwards you may want to initialize a bare git repository with:\n"
-	printf "[xadf]:   xadf --init-bare [--seat DIR]\n"
-	printf "[xadf]:   xadf --custom-install [--seat DIR]\n"
-	printf "[xadf]: Or download from your existing dotfiles repo and set xadf as its manager with:\n"
-	printf "[xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
+	xadf_minimal_test
 fi
 }
 
 xadf_minimal_install(){
-printf "[xadf]: WARNING! Will only obtain most required files for proper functioning of xadf\n"
+printf "===> [xadf]: WARNING! Will only obtain most required files for proper functioning of xadf\n"
 # Create required directories
-printf "[xadf]: Recreate basic required directory structures\n"
+printf "===> [xadf]: Recreate basic required directory structures\n"
 mkdir ~/.local ~/.local/{bin,xadf} ~/.local/xadf/templates
 
 # Download the latest version of xadf binary
-printf "[xadf]: Obtain the latest xadf binary from branch '%s'\n" "$install_branch"
-printf "[xadf]: For security reasons, the link is hardcoded except for branch\n"
+printf "===> [xadf]: Obtain the latest xadf binary from branch '%s'\n" "$install_branch"
+printf "===> [xadf]: For security reasons, the link is hardcoded except for branch\n"
 
 # If wget exists, use wget
 # Otherwise try curl
@@ -219,7 +214,8 @@ elif which curl > /dev/null;
 then
   xadf_curl_download
 else
-  printf "[xadf]: WARNING! Neither wget or curl exists!\n[xadf]: Please install either one of them. Aborting...\n"
+  printf "===> [xadf]: WARNING! Neither wget or curl exists!\n"
+  printf "===> [xadf]: Please install either one of them. Aborting...\n"
   exit 20
 fi
 }
@@ -230,94 +226,94 @@ xadf_clone_source(){
 #    all contents of the repo. If --seat is set, replicate git directory
 #    to the specified location. Otherwise, replicate git directory to
 #    $HOME/xadf
-printf "[xadf]: Clone from repo '%s'...\n" "$xadf_clone_url"
+printf "===> [xadf]: Clone from repo '%s'...\n" "$xadf_clone_url"
 git clone --separate-git-dir="$install_seat" "$xadf_clone_url" ~/.xadf-tmp
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL! cleaning up...\n"
+	printf "===> [xadf]: FAIL! cleaning up...\n"
 	rm -rf "$install_seat" "$HOME/.xadf-tmp"
 	exit 6
 else
-	printf "[xadf]: DONE\n"
+	printf "===> [xadf]: DONE\n"
 fi
 
 # 2. Switch working directory to temporary working directory
-printf "[xadf]: Switch working directory to '~/.xadf-tmp'...\n"
+printf "===> [xadf]: Switch working directory to '~/.xadf-tmp'...\n"
 pushd ~/.xadf-tmp > /dev/null
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "===> [xadf]: FAIL\n"
 	exit 7
 else
-	printf "[xadf]: DONE, working directory is '%s'\n" "$PWD"
+	printf "===> [xadf]: DONE, working directory is '%s'\n" "$PWD"
 fi
 
 # 3. If --branch is set, checks out to branch NAME
-printf "[xadf]: Checks out to branch '%s'...\n" "$install_branch"
+printf "===> [xadf]: Checks out to branch '%s'...\n" "$install_branch"
 # right now our working directory is ~/.xadf-tmp
 git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" checkout "$install_branch"
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL! cleaning up...\n"
+	printf "===> [xadf]: FAIL! cleaning up...\n"
 	rm -rf "$install_seat" "$HOME/.xadf-tmp"
 	exit 8
 else
 	# right now our working directory is ~/.xadf-tmp
-	printf "[xadf]: "
+	printf "===> [xadf]: "
 	git --git-dir="$install_seat" --work-tree="$HOME/.xadf-tmp" status -bs
 fi
 
 # 4. rsync all contents of $HOME/.xadf-tmp/ except '.git' to $HOME
-printf "[xadf]: Syncing repo to '%s'...\n" "$HOME"
+printf "===> [xadf]: Syncing repo to '%s'...\n" "$HOME"
 rsync --recursive --verbose --exclude '.git' "$HOME/.xadf-tmp/" "$HOME/"
 # if test $? -gt 0
 # then
-#	printf "[xadf]: FAIL\n"
+#	printf "===> [xadf]: FAIL\n"
 #	exit 9
 #else
-#	printf "[xadf]: DONE\n"
+#	printf "===> [xadf]: DONE\n"
 #fi
 
 # 5. Removes $HOME/.xadf-tmp/
-printf "[xadf]: Returns to '%s'...\n" "$HOME"
+printf "===> [xadf]: Returns to '%s'...\n" "$HOME"
 popd > /dev/null
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "===> [xadf]: FAIL\n"
 	exit 10
 else
-	printf "[xadf]: DONE, working directory is '%s'\n" "$PWD"
+	printf "===> [xadf]: DONE, working directory is '%s'\n" "$PWD"
 fi
 
-printf "[xadf]: Deletes temporary working directory '~/.xadf-tmp'...\n"
+printf "===> [xadf]: Deletes temporary working directory '~/.xadf-tmp'...\n"
 rm -rf "$HOME/.xadf-tmp"
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "===> [xadf]: FAIL\n"
 	exit 11
 else
-	printf "[xadf]: DONE\n"
+	printf "===> [xadf]: DONE\n"
 fi
 }
 
 xadf_install(){
 # installs xadf
-printf "[xadf]: installing xadf\n"
-printf "[xadf]: seat is '%s'\n" "$install_seat"
-printf "[xadf]: branch is '%s'\n" "$install_branch"
+printf "===> [xadf]: installing xadf\n"
+printf "===> [xadf]: seat is '%s'\n" "$install_seat"
+printf "===> [xadf]: branch is '%s'\n" "$install_branch"
 
 # Step 1-5 is replaced with:
 xadf_clone_source
 
 # 6. Make untracked files not shown: xadf config status.showUntrackedFiles no
-printf "[xadf]: Makes untracked file not shown...\n"
+printf "===> [xadf]: Makes untracked file not shown...\n"
 git --git-dir="$install_seat" --work-tree="$HOME" config status.showUntrackedFiles no
 if test $? -gt 0
 then
-	printf "[xadf]: FAIL\n"
+	printf "===> [xadf]: FAIL\n"
 	exit 12
 else
-	printf "[xadf]: DONE\n"
+	printf "===> [xadf]: DONE\n"
 fi
 
 # 7. Check if .bashrc exists. If exists, go to 9, else go to 8
@@ -335,8 +331,8 @@ test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
 # 11. If no recipe.txt is present, builds recipe.txt with xadf -r
 test ! -f ~/.config/recipe.txt && xadf_build_recipe && export build_recipe=0
 
-printf "[xadf]: Installation of xadf is completed, checked out branch is '%s'\n" "$install_branch"
-printf "[xadf]: You may want to source your ~/.bashrc\n"
+printf "===> [xadf]: Installation of xadf is completed, checked out branch is '%s'\n" "$install_branch"
+printf "===> [xadf]: You may want to source your ~/.bashrc\n"
 }
 
 xadf_touch_origin(){
