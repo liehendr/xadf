@@ -1,9 +1,11 @@
-# Welcome to ~/.* managed with xadf (xeno authority dotfiles) !
+# ~/.* managed with xadf
 
 ![Obligatory screenshot](pics/screenshot.png)
 
-My dotfiles repository, managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](.local/bin/xadf)) that also function as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
+Welcome to my dotfiles repository! Managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](.local/bin/xadf)) that also functions as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
 Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)) either for my use or just for fun.
+
+> **Disclaimer:** While the idea (and name) of `xadf` dates back to [my original](#migrating-from-xadf-v0), butchered ways of backing up dotfiles, I was inspired to create the current implementation after reading through [Alfunx's implementation on additional commands](https://github.com/alfunx/.dotfiles#additional-commands).
 
 [TOC]
 
@@ -55,6 +57,7 @@ Additionally, since we are cloning from git https clone url, we may need to chan
 xadf config status.showUntrackedFiles no
 xadf remote set-url origin git@gitlab.com:heno72/xadf-gb.git
 ```
+> Note that since untracked files are not shown, when you made changes to file you actually track, it is tempting to just use `xadf add .` especially when you have a bunch of them. **_DON'T!_** Just don't, as it means you'd include all files in `$HOME`, which is certainly undesirable. You should specify each files you want to add.
 
 ## Usage
 
@@ -77,6 +80,8 @@ A `README.md` is very helpful to document the usage of our repository, and a `LI
 4. Afterwards, changes to config files are done or branched from branch `trunk` only. Then branch `trunk` may be merged to `master` often. But never the other way around (from production, merge master).
 
 As long as we work with the `trunk` branch and never merge `master` there, we will be okay. Additionally, more branches can be added from branch `trunk` (and not `master`). Further changes of `trunk` can be merged to any subsequent branches. Likewise, if so desired, any other branches but `master` can be merged to `trunk`.
+
+## Strategy to deal with multiple branches
 
 Though, honestly I would advise to make shared configs on `trunk` and later merge them to other branches and branch `master`.
 
@@ -147,7 +152,7 @@ gitGraph
 
 Instead of just using alias, and do all of the steps described in previous section manually, I want to have them be done automatically with a script. The goal is to have a single script that will handle installation (cloning repo with separate git directory, checking out to correct branch, syncing repo contents to home directory, set up helper configuration files so we can use the tool on the next login or new terminal sessions), and can function as an alias to git with separate git directory (essentially an alias for `git --git-dir=$xadfdir --work-tree=$HOME`, where `$xadfdir` is declared in the aforementioned helper configuration file) for day to day use.
 
-Since I already have working `.bashrc` configurations in most of my machines and setups (especially my android's termux), I want the mechanism to be minimally invasive to `.bashrc`. We could later decide to track `.bashrc` in separate machine-specific branches, or the produced configuration files in `~/.config/xadf` (`$xadfconfig`) if necessary. We should also distinguish `.local` and `.config` use. I want `.local` to be used to store custom functions and templates, while `.config` folder to specifically store `xadf` related configurations, or configuration files of custom functions or custom scripts shipped with `xadf` in `~/.local/{bin,xadf}`
+Since I already have a working `.bashrc` configurations in most of my machines and setups (especially my android's termux), I want the mechanism to be minimally invasive to `.bashrc`. We could later decide to track `.bashrc` in separate machine-specific branches, or the produced configuration files in `~/.config/xadf` (`$xadfconfig`) if necessary. We should also distinguish `.local` and `.config` use. I want `.local` to be used to store custom functions and templates, while `.config` folder to specifically store `xadf` related configurations, or configuration files of custom functions or custom scripts shipped with `xadf` in `~/.local/{bin,xadf}`
 
 The following subsections will outline the basic directory structures, specification of configuration files and config constructor files, and specification of `xadf` itself. We will also outline installation, uninstallation, and usage.
 
@@ -157,24 +162,23 @@ A minimal `xadf` would inhabit the following locations, and be populated with th
 
 ```
 # Relative to $HOME/
-xadf/              # the default git directory for xadf, configurable on install
-                   # xadf will declare it as $xadfdir
+xadf/              # the default git directory for xadf ($xadfdir), configurable on install
 .local/
   bin/             # xadfrc will add this as $PATH
     xadf           # a helper script and an alias of git commands
-  xadf/            # xadfrc will declare it as $xadfmods
+  xadf/            # $xadfmods
     templates/     # especially useful for constructor functions
       default-recipe.txt
       template-xadfrc
-    bash_aliases   # common aliases for our use
-    bash_functions # common functions for our use
+    bash_aliases   # custom aliases
+    bash_functions # custom functions
     <other custom modules and functions>
 .config/
-  xadf/            # xadfrc will declare it as $xadfconfig
+  xadf/            # $xadfconfig
     xadfrc         # formerly head.sh, sourced from .bashrc
     recipe.txt     # to determine which modules from $xadfmods to load
-README.md          # this file                         (only present in branch master)
-LICENSE            # our license file, currently GPLv3 (only present in branch master)
+README.md          # this file                         (branch master only)
+LICENSE            # our license file, currently GPLv3 (branch master only)
 ```
 
 There will obviously be other configuration files for other apps, but the above directory structure is the most relevant for `xadf` script.
@@ -258,7 +262,7 @@ The content of `$xadfmods/templates/default-recipe.txt` that is used to build de
 
 ### Summary
 
-This is essentially our dotfiles repo controller. It can also function as an installer script: downloading the entire repo, sets up alias, append source directive to .bashrc, and syncs all contents from dotfiles to `$HOME`. When called, it can also function as an alias for git with separate home dir, where the git directory is set at either `$HOME/xadf` or somewhere that is specified with `--seat` at install time.
+This is essentially our dotfiles repo controller. It can also function as an installer script: downloading the entire repo, sets up alias, append source directive to `.bashrc`, and syncs all contents from dotfiles to `$HOME`. When called, it can also function as an alias for git with separate home dir, where the git directory is set at either `$HOME/xadf` or somewhere that is specified with `--seat` at install time.
 
 **Program:** `xadf`
 
@@ -270,42 +274,49 @@ This is essentially our dotfiles repo controller. It can also function as an ins
 
 The following are its native options:
 
-**-r / --build-recipe**
+**-l / --list-tracked PATH**
+: lists tracked file, an alias of `xadf ls-tree --full-tree -r --name-only HEAD "$@"`. May expect arguments in form of PATH relative to repository root. Note: it is ***MUTUALLY EXCLUSIVE WITH*** other options after this option.
 
+**-r / --build-recipe**
 : produce `$xadfconfig/recipe.txt` by copying `$xadfmods/default-recipe.txt`
 
 **-x / --build-xadfrc**
+: produce `$xadfconfig/xadfrc` by constructing from `$xadfmods/template-xadfrc`. You can include `--seat DIR` so `xadfrc` is configured for a custom git directory.
 
-: produce `$xadfconfig/xadfrc` by constructing from `$xadfmods/template-xadfrc`
+**-t / --touch-bashrc**
+: modifies `~/.bashrc` to source `$xadfconfig/xadfrc` if it does not already.
 
-**-l / --list-tracked**
+**--init-bare**
+: Initialize a bare git repository at `$HOME`. you can specify custom git directory with '--seat DIR' option.
 
-: lists tracked file, an alias of `xadf ls-tree --full-tree -r --name-only HEAD "$@"`. May expect arguments in form of path relative to repository root. See README.md of dotfiles repo of alfunx. Note: it is ***MUTUALLY EXCLUSIVE WITH*** other options after this option.
+**-c / --custom-seat DIR**
+: Sets xadf git directory to DIR, then assumes the following commands are git commands. Useful to use an alternative git directory.
+
+**-o / --set-origin-url URL**
+: Changes remote url to the specified URL. Essentially an alias for: `xadf remote set-url origin URL`
+
+**--xadf-repo**
+: Essentially an alias for: `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`.
+If you want to use your own git clone url, supply with `--set-origin-url/-s URL`
 
 **--heno**
-
-: configures upstream link, essentially an alias for `xadf remote set-url origin git@gitlab.com:heno72/xadf.git` (for my personal needs, don't do that if you don't have write access there! If so desired, you can change the option or the url to your own).
+: *REMOVED* since `xadf version v1.16.20230227.2312+optimize_mkdir`. Configures upstream link, essentially an alias for `xadf remote set-url origin git@gitlab.com:heno72/xadf.git` (for my personal needs, don't do that if you don't have write access there! If so desired, you can change the option or the url to your own).
 
 **-v / --version**
-
 : prints version and exit
 
 **-h / --help**
-
 : prints help and exit
 
 Installation-specific options:
 
 **-i / --install**
-
 : function as an installer, and perform installation of xadf into user's `$HOME`, and building `xadfrc`. By default, configure xadf git directory in `$HOME/xadf`
 
 **--seat DIR**
-
 : configures xadf git directory to a custom location DIR instead of `$HOME/xadf` during install time. Is meant to be used in conjuction of option `-i / --install`
 
 **-b NAME / --branch NAME**
-
 : checks out to branch NAME. Without this argument, it is identical to call the program with option `--branch master`
 
 ### Installer
