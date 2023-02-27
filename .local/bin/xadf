@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.17.20230228.0215+fix_help_text
+version=v1.18.20230228.0431+fix_wget_invocation
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -170,7 +170,7 @@ fi
 xadf_wget_download(){
 # A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
 # is specified with --seat
-wget -P ~/.local/bin/ https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
+wget -O ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
 if test $? -gt 0
 then
 	printf "===> [xadf]: WARNING! File not found! Aborting...\n" >&2
@@ -183,7 +183,7 @@ else
 	printf "===> [xadf]: Download required files...\n"
 	for file in bash_aliases bash_functions default-recipe.txt template-xadfrc
 	do
-		wget -P ~/.local/xadf/templates/ \
+		wget -O ~/.local/xadf/templates/${file} \
 		https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/${file}
 	done
 
