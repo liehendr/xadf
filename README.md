@@ -612,7 +612,8 @@ Once they are downloaded and placed in appropriate locations, you just have to m
 
 ```bash
 # Install the minimal set of xadf files
-xadf --minimal-install
+# Note that BRANCH is the branch in xadf native repository.
+xadf --minimal-install [--branch BRANCH]
 ```
 
 Then you can do anything you like, really.
@@ -645,7 +646,7 @@ Note that:
 1. BRANCH is the git branch of your liking from your configuration.
    If BRANCH is not specified, defaults to 'trunk'
 
-If you are using this method of installing `xadf`, the only reference to my repository is just hardcoded in `xadf` file itself. This is only required so you can keep your `xadf` updated to the latest version by simply rerunning `xadf --minimal-install`.
+If you are using this method of installing `xadf`, the only reference to my repository is just hardcoded in `xadf` file itself. This is only required so you can keep your `xadf` updated to the latest version by simply running `xadf --minimal-install [--branch BRANCH]` again.
 
 ## Dependencies of xadf
 
