@@ -462,22 +462,22 @@ set_origin_url=0
 
     For all other native `xadf` options, they will only be used to manipulate state variables.
 
-   - `-i / --install` changes `install_mode=1`
-   - `--custom-install` changes `install_mode=2`
-   - `--minimal-install` changes `install_mode=3`
-   - `--seat` changes `$install_seat` to DIR
-   - `-b / --branch` changes `$install_branch` to NAME
-   - `-r / --build-recipe` changes `build_recipe=1`
-   - `-x / --build-xadfrc` changes `build_xadfrc=1`
-   - `-t / --touch-bashrc` changes `touch_bashrc=1`
-   - `--init-bare` changes `init_bare=1`
-   - `--xadf-repo` changes `vanilla_xadf=1`
-   - `--heno` changes `is_heno=1` (*REMOVED*, replaced with `--xadf-repo`)
-   - `-o / --set-origin-url` changes `set_origin_url=1` and set `$xadf_set_url` to URL
-   - `-s / --clone-source` changes `$xadf_clone_url` to URL
-   - `-c / --custom-seat` changes `$install_seat` to DIR and then run `git --git-dir="$install_seat" --work-tree="$HOME" "$@"` (assuming all arguments following it as git commands)
+    - `-i / --install` changes `install_mode=1`
+    - `--custom-install` changes `install_mode=2`
+    - `--minimal-install` changes `install_mode=3`
+    - `--seat` changes `$install_seat` to DIR
+    - `-b / --branch` changes `$install_branch` to NAME
+    - `-r / --build-recipe` changes `build_recipe=1`
+    - `-x / --build-xadfrc` changes `build_xadfrc=1`
+    - `-t / --touch-bashrc` changes `touch_bashrc=1`
+    - `--init-bare` changes `init_bare=1`
+    - `--xadf-repo` changes `vanilla_xadf=1`
+    - `--heno` changes `is_heno=1` (*REMOVED*, replaced with `--xadf-repo`)
+    - `-o / --set-origin-url` changes `set_origin_url=1` and set `$xadf_set_url` to URL
+    - `-s / --clone-source` changes `$xadf_clone_url` to URL
+    - `-c / --custom-seat` changes `$install_seat` to DIR and then run `git --git-dir="$install_seat" --work-tree="$HOME" "$@"` (assuming all arguments following it as git commands)
    
-   When no native `xadf` options are provided, run: `git --git-dir="$xadfdir" --work-tree="$HOME" "$@"`. Note that it should fail if `$xadfdir` is not set (that is, no xadf installed yet). It will expect all arguments following it to be git arguments, so treat it just like you would a `git` command.
+    When no native `xadf` options are provided, run: `git --git-dir="$xadfdir" --work-tree="$HOME" "$@"`. Note that it should fail if `$xadfdir` is not set (that is, no xadf installed yet). It will expect all arguments following it to be git arguments, so treat it just like you would a `git` command.
 
 8. Main section
 
