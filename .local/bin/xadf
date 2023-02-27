@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.16.20230227.2312+optimize_mkdir
+version=v1.17.20230228.0215+fix_help_text
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -418,37 +418,37 @@ USAGE
 OPTIONS
 
 Normal usage options:
-  --list-tracked/-l [PATH]  Prints all tracked files in PATH or current directory.
-                            PATH is relative to repository root.
-  --build-recipe/-r         Produces \$xadfconfig/recipe.txt by copying from template.
-  --build-xadfrc/-x         Produce \$xadfconfig/xadfrc by constructing from template.
-  --touch-bashrc/-t         Modify .bashrc to source xadfrc if it isn't already.
-  --init-bare               Initialize a bare git repository at \$HOME.
-                            Specify custom git directory with --seat option.
-  --custom-seat/-c DIR      Sets xadf git directory to DIR, then assumes the following commands are git commands.
-                            Useful to use an alternative git directory.
-  --set-origin-url/-o URL   Changes remote url to the specified URL. Essentially an alias for:
-                              xadf remote set-url origin URL
-  --xadf-repo               Essentially an alias for:
-                              xadf remote set-url origin git@gitlab.com:heno72/xadf.git
-                            If you want to use your own git clone url, supply with '--set-origin-url/-s URL'
-  --help/-h                 Display this help text and then exit
-  --usage                   Display usage examples and then exit
-  --version/-v              Prints version and then exit
+  --list-tracked/-l PATH  Prints all tracked files in PATH or current directory.
+                          PATH is relative to repository root.
+  --build-recipe/-r       Produces \$xadfconfig/recipe.txt by copying from template.
+  --build-xadfrc/-x       Produce \$xadfconfig/xadfrc by constructing from template.
+  --touch-bashrc/-t       Modify .bashrc to source xadfrc if it isn't already.
+  --init-bare             Initialize a bare git repository at \$HOME.
+                          Specify custom git directory with '--seat DIR' option.
+  --custom-seat/-c DIR    Sets xadf git directory to DIR, then assumes the following commands are git commands.
+                          Useful to use an alternative git directory.
+  --set-origin-url/-o URL Changes remote url to the specified URL. Essentially an alias for:
+                            xadf remote set-url origin URL
+  --xadf-repo             Essentially an alias for:
+                            xadf remote set-url origin git@gitlab.com:heno72/xadf.git
+                          If you want to use your own git clone url, supply with '--set-origin-url/-o URL'
+  --help/-h               Display this help text and then exit
+  --usage                 Display usage examples and then exit
+  --version/-v            Prints version and then exit
 
 Installation options:
-  --custom-install          Configure xadf to load from a non-xadf bare git repository.
-                            Specify custom git directory with '--seat DIR' option.
-  --minimal-install         Install only core xadf (honors '--branch/b BRANCH' option).
-                            If BRANCH is set, uses xadf original repo's BRANCH (defaults to 'trunk')
-  --install/-i              Installs and sets up xadf repository to user's \$HOME
-  --seat DIR                Sets xadf git directory to DIR. Default: \$HOME/xadf
-                            Should be used with '--install/-i', '--custom-install' and/or '--build-xadfrc/-x'
-  --branch/-b BRANCH        Sets active git branch in \$HOME to BRANCH. Default: trunk
-                            Should be used with option '--install/-i' and/or '--minimal-install'.
-                            If xadf is configured, use 'xadf switch BRANCH' instead.
-  --clone-source/-s URL     Sets a custom git repository URL to clone from during install.
-                            Should be used with option '--install/-i'.
+  --custom-install        Configure xadf to load from a non-xadf bare git repository.
+                          Specify custom git directory with '--seat DIR' option.
+  --minimal-install       Install only core xadf (honors '--branch/b BRANCH' option).
+                          If BRANCH is set, uses xadf original repo's BRANCH (defaults to 'trunk')
+  --install/-i            Installs and sets up xadf repository to user's \$HOME
+  --seat DIR              Sets xadf git directory to DIR. Default: \$HOME/xadf
+                          Should be used with '--install/-i', '--custom-install' and/or '--build-xadfrc/-x'
+  --branch/-b BRANCH      Sets active git branch in \$HOME to BRANCH. Default: trunk
+                          Should be used with option '--install/-i' and/or '--minimal-install'.
+                          If xadf is configured, use 'xadf switch BRANCH' instead.
+  --clone-source/-s URL   Sets a custom git repository URL to clone from during install.
+                          Should be used with option '--install/-i'.
 
 ENDOFFILE
 # $(printf "%s\n" "$install_seat"|sed 's#$HOME#\$HOME#')                          
