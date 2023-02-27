@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.15.20230227.2256+updated_help_text
+version=v1.16.20230227.2312+optimize_mkdir
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -53,10 +53,8 @@ xadf_set_url="git@gitlab.com:heno72/xadf.git"
 set_origin_url=0
 
 # Make necessary directories
-test ! -d ~/.config && mkdir ~/.config
-test ! -d ~/.config/xadf && mkdir ~/.config/xadf
-test ! -d ~/.local && mkdir ~/.local
-test ! -d ~/.local/xadf && mkdir ~/.local/xadf
+test ! -d ~/.config/xadf && mkdir -p ~/.config/xadf
+test ! -d ~/.local/xadf && mkdir -p ~/.local/xadf
 
 xadf_build_recipe(){
 # builds recipe
@@ -198,7 +196,7 @@ xadf_minimal_install(){
 printf "===> [xadf]: WARNING! Will only obtain most required files for proper functioning of xadf\n"
 # Create required directories
 printf "===> [xadf]: Recreate basic required directory structures\n"
-mkdir ~/.local ~/.local/{bin,xadf} ~/.local/xadf/templates
+mkdir -p ~/.local/{bin,xadf} ~/.local/xadf/templates
 
 # Download the latest version of xadf binary
 printf "===> [xadf]: Obtain the latest xadf binary from branch '%s'\n" "$install_branch"
