@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.18.20230228.0431+fix_wget_invocation
+version=v1.19.20230228.0443+helpful_custom_install
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -119,6 +119,8 @@ test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
 printf "===> [xadf]: Touching ~/.bashrc\n"
 xadf_touch_bashrc
 printf "===> [xadf]: You may want to source your ~/.bashrc\n"
+printf "===> [xadf]: Afterwards you may want to hide untracked files with:\n"
+printf "===> [xadf]:   xadf config status.showUntrackedFiles no\n"
 }
 
 xadf_minimal_test(){
