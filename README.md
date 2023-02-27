@@ -297,18 +297,27 @@ The following are its native options:
 
 **--xadf-repo**
 : Essentially an alias for: `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`.
-If you want to use your own git clone url, supply with `--set-origin-url/-s URL`
+If you want to use your own git clone url, supply with `--set-origin-url/-o URL`.
 
 **--heno**
-: *REMOVED* since `xadf version v1.16.20230227.2312+optimize_mkdir`. Configures upstream link, essentially an alias for `xadf remote set-url origin git@gitlab.com:heno72/xadf.git` (for my personal needs, don't do that if you don't have write access there! If so desired, you can change the option or the url to your own).
+: *REPLACED* with `--xadf-repo` since `xadf version v1.16.20230227.2312+optimize_mkdir`. Configures git upstream link, essentially an alias for `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`.
+
+**-h / --help**
+: prints help and exit.
+
+**--usage**
+: Display usage examples and then exit.
 
 **-v / --version**
 : prints version and exit
 
-**-h / --help**
-: prints help and exit
-
 Installation-specific options:
+
+**--custom-install**
+: Configure xadf to load from a non-xadf bare git repository. You can specify custom git directory with `--seat DIR` option. This is very useful if you already managed your dotfiles with bare git and alias method. Note that without `--seat DIR` option, the default git repository is `~/xadf` anyway, so you may need to specify your dotfiles git directory.
+
+**--minimal-install**
+: Install only core xadf files (honors `--branch/b BRANCH` option). BRANCH here is the branch of this repository. If BRANCH is not set, it defaults to this repository's branch 'trunk'. This is also useful if you want to set up your own bare git repository, or if you already have a bare git repository set up.
 
 **-i / --install**
 : function as an installer, and perform installation of xadf into user's `$HOME`, and building `xadfrc`. By default, configure xadf git directory in `$HOME/xadf`
@@ -316,14 +325,17 @@ Installation-specific options:
 **--seat DIR**
 : configures xadf git directory to a custom location DIR instead of `$HOME/xadf` during install time. Is meant to be used in conjuction of option `-i / --install`
 
-**-b NAME / --branch NAME**
-: checks out to branch NAME. Without this argument, it is identical to call the program with option `--branch master`
+**-b / --branch NAME**
+: checks out to branch NAME during install. Without this argument, it is identical to call the program with option `--branch master`
+
+**--clone-source/-s URL**
+: Sets a custom git repository URL to clone from during install. Note that it assumes you already have xadf installed in your home directory (see `--minimal-install`). Should be used with option `--install/-i`.
 
 ### Installer
 
 The use of `-i` option when executing `xadf` should perform the following actions:
 
-1. Replicate from xadf git repository with separate git configuration. It will also specify a temporary location `$HOME/.xadf-tmp` to store all contents of the repo. If `--seat` is set, replicate git directory to the specified location. Otherwise, replicate git directory to `$HOME/xadf`
+1. Replicate from xadf git repository with separate git configuration. If `--clone-source/-s URL` is set, replicate from the specified git clone URL, otherwise it will use its native clone URL (this repository). It will also produces a temporary directory `$HOME/.xadf-tmp` to store all contents of the repo. If `--seat` is set, replicate git directory to the specified location. Otherwise, replicate git directory to `$HOME/xadf`
 2. Switch working directory to `$HOME/.xadf-tmp`
 3. If `--branch` is set, checks out to branch NAME
 4. `rsync` all contents of `$HOME/.xadf-tmp/` except '.git' to `$HOME`
@@ -346,14 +358,17 @@ Following the specifications of `xadf` and its supporting configurations, we can
 
 ```bash
 version=<version number> # (for use with --version)
-is_heno=0
+vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
+touch_bashrc=0
+init_bare=0
 install_mode=0
 install_seat="$HOME/xadf"
 install_branch="trunk"
-xadf_https_repo="https://gitlab.com/heno72/xadf.git"
-xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
+xadf_clone_url="https://gitlab.com/heno72/xadf.git"
+xadf_set_url="git@gitlab.com:heno72/xadf.git"
+set_origin_url=0
 ```
 
 2. Define function `xadf_build_recipe()`
@@ -372,57 +387,127 @@ xadf_ssh_repo="git@gitlab.com:heno72/xadf.git"
    
    > `. ~/.local/xadf/templates/template-xadfrc | sed "s#$HOME#\$HOME#" > ~/.config/xadf/xadfrc`
 
-4. Define function `xadf_install()`
-
-   > See [Installer](#installer)
-
-   This is by far the most complicated function of the code.
-   For almost each steps it will test whether the action is completed succesfully.
-   It will break when it encountered errors, and possibly clean up to not interfere up with future installation attempt.
-
-5. Define function `xadf_version()`
-
-   > Prints program name and version, then exit.
-
-6. Define function `xadf_show_help()`
-
-   > Runs `xadf -v`, then prints help text, then exit.
-
-7. Parse options.
+4. Define function `xadf_touch_bashrc()`
    
-   Basic while loop that is true until is told to break, then arguments are passed via case conditionals.
+   A new addition. Basically I split the original step 10 of the [installer routine](#installer) into a separate function. Therefore I can append an option that will also activate that routine independently when invoked.
 
-   For option `-l / --list-tracked`, run: `xadf ls-tree --full-tree -r --name-only HEAD "$@"`. Note that it may also expect to be provided arguments, for example to specify which file or directory do we want to see (just like `ls` in some ways).
+5. Define function `xadf_init_bare()`
+   
+   Basically does only: `git init --bare "$install_seat"`. It can be used in conjuction of `--seat DIR` as it takes $install_seat variable: `xadf --init-bare [--seat DIR]`. Essentially the function initiate a new empty bare git repository somewhere at `$HOME`.
 
-   For option `-h / --help`, runs `xadf_show_help()` and then exit.
+6. Define function `xadf_custom_install()`
 
-   For option `-v / --version`, runs `xadf_version()` and then exit.
+   Basically the function will invoke function `xadf_build_xadfrc()`, `xadf_build_recipe()` (only if `recipe.txt` is not already present), and `xadf_touch_bashrc()`. It also honors `--seat DIR` option to specify a custom location for your bare git directory.
 
-   For all other native `xadf` options, they will only be used to manipulate state variables.
+7. Define function `xadf_minimal_test()`
 
-   - `-i / --image` changes `install_mode=1`
+   This function detects whether the base contents of `$xadfmods/templates` (`bash_aliases`, `bash_functions`, `default-recipe.txt`, and `template-xadfrc`) are present. This is meant to assist the `xadf_minimal_install()` function.
+
+8. Define function `xadf_curl_download()` and function `xadf_wget_download()`
+
+   Their sole purpose is to download `xadf` and its support files (the ones tested in function no. 7). Function `xadf_minimal_install()` is meant to be the one that invoke them.
+
+9. Define function `xadf_minimal_install()`
+
+   Its purpose is to create basic directory structures for a minimal `xadf` installation (when using `--minimal-install` option), then download the files listed below. It will try if `wget` exists first, and download with `wget` if it does exist.
+   Otherwise it will attempt to try and use `curl`, and scream if neither of them exists.
+
+```
+~/.local/bin/xadf
+~/.local/xadf/templates/bash_aliases
+~/.local/xadf/templates/bash_functions
+~/.local/xadf/templates/default-recipe.txt
+~/.local/xadf/templates/template-xadfrc
+```
+
+10. Define function `xadf_clone_source()`
+
+    Essentially performs step 1 to step 6 of the [installation routine](#installer). It is separated from `xadf_install()` for clarity.
+
+11. Define function `xadf_install()`
+
+    > See [Installer](#installer)
+
+    This is by far the most complicated function of the code.
+    For almost each steps it will test whether the action is completed succesfully.
+    It will break when it encountered errors, and possibly clean up to not interfere up with future installation attempt.
+
+12. Define function `xadf_touch_origin()`
+    
+    Supposedly an analog of `git remote set-url origin URL`. Will call itself if it is already configured, otherwise will manually call git. Its sole responsibility is to configure origin url of your bare git repository.
+
+13. Define function `xadf_version()`
+
+    > Prints program name and version, then exit.
+
+14. Define function `xadf_show_usage()`
+
+    > Runs `xadf -v`, then prints usage text, then exit.
+
+15. Define function `xadf_show_help()`
+
+    > Runs `xadf -v`, then prints help text, then exit.
+
+16. Parse options.
+   
+    Basic while loop that is true until is told to break, then arguments are passed via case conditionals.
+
+    For option `-l / --list-tracked`, run: `xadf ls-tree --full-tree -r --name-only HEAD "$@"`. Note that it may also expect to be provided arguments, for example to specify which file or directory do we want to see (just like `ls` in some ways).
+
+    For option `-h / --help`, runs `xadf_show_help()` and then exit.
+
+    For option `--usage`, runs `xadf_show_usage()` and then exit.
+
+    For option `-v / --version`, runs `xadf_version()` and then exit.
+
+    For all other native `xadf` options, they will only be used to manipulate state variables.
+
+   - `-i / --install` changes `install_mode=1`
+   - `--custom-install` changes `install_mode=2`
+   - `--minimal-install` changes `install_mode=3`
    - `--seat` changes `$install_seat` to DIR
    - `-b / --branch` changes `$install_branch` to NAME
    - `-r / --build-recipe` changes `build_recipe=1`
    - `-x / --build-xadfrc` changes `build_xadfrc=1`
-   - `--heno` changes `is_heno=1`
-
+   - `-t / --touch-bashrc` changes `touch_bashrc=1`
+   - `--init-bare` changes `init_bare=1`
+   - `--xadf-repo` changes `vanilla_xadf=1`
+   - `--heno` changes `is_heno=1` (*REMOVED*, replaced with `--xadf-repo`)
+   - `-o / --set-origin-url` changes `set_origin_url=1` and set `$xadf_set_url` to URL
+   - `-s / --clone-source` changes `$xadf_clone_url` to URL
+   - `-c / --custom-seat` changes `$install_seat` to DIR and then run `git --git-dir="$install_seat" --work-tree="$HOME" "$@"` (assuming all arguments following it as git commands)
+   
    When no native `xadf` options are provided, run: `git --git-dir="$xadfdir" --work-tree="$HOME" "$@"`. Note that it should fail if `$xadfdir` is not set (that is, no xadf installed yet). It will expect all arguments following it to be git arguments, so treat it just like you would a `git` command.
 
 8. Main section
 
    Check state variables, and decide what function to call.
 
+   1. if `init_bare=1`, then calls `xadf_init_bare()`
    1. if `install_mode=1`, then calls `xadf_install()`
-   2. if `build_recipe=1`, then calls `xadf_build_recipe()`
-   3. if `build_xadfrc=1`, then calls `xadf_build_xadfrc()`
-   4. if `is_heno=1`, then runs `xadf remote set-url origin git@gitlab.com:heno72/xadf.git`
+   1. if `install_mode=2`, then calls `xadf_custom_install()`
+   1. if `install_mode=3`, then calls `xadf_minimal_install()`
+   1. if `build_recipe=1`, then calls `xadf_build_recipe()`
+   1. if `build_xadfrc=1`, then calls `xadf_build_xadfrc()`
+   1. if `touch_bashrc=1`, then calls `xadf_touch_bashrc()`
+   4. if `vanilla_xadf=1` or `set_origin_url=1`, then calls `xadf_touch_origin()`
 
 # Installation of xadf
 
+If you are reading this, it is likely that you are interested with either my dotfiles configuration, managing your dotfiles with bare git and alias method, or the `xadf` executable itself. The following sections might therefore be useful for you:
+
+- [obtaining xadf executable](#obtaining-xadf-executable): a very useful and powerful wrapper script that can help managing your dotfiles with bare git and alias method.
+- [normal installation](#normal-installation): installs `xadf` along with the entire content of this repository.
+- [custom installation](#custom-installation): will configure an already installed `xadf` to use another git directory.
+- [minimal installation](#minimal-installation): will only install `xadf` executables and a minimal set of files meant to be used by `xadf`.
+
+## Obtaining xadf executable
+
 > **Tip:** You may wish to [check dependencies](#dependencies-of-xadf) required to properly run xadf.
 
-Download xadf script [here](https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf), then make it executable. Place it somewhere in your `$PATH`. Ideally save it as `$HOME/.local/bin/xadf` so it will be replaced with the latest version of `xadf` from our git repository.
+I have designed this project in a way that replicating my configuration is as simple as obtaining the `xadf` executable and running it. Therefore `xadf` is designed to be able to bootstrap, clone and configure git managed dotfiles to any `$HOME` in any linux system. After everything is configured, it can then be used to manage your dotfiles using git. However the first step is to obtain the executable itself.
+
+You can download xadf script [here](https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf). Then you need to make it executable. Place it somewhere in your `$PATH`. Ideally save it as `$HOME/.local/bin/xadf` so it will be replaced with the latest version of `xadf` from our git repository.
 
 ```bash
 # Download the script
@@ -435,27 +520,35 @@ chmod +x xadf
 mv xadf ~/.local/bin/
 ```
 
-If `$HOME/.local/bin/` is not in your path, you can actually run the following command:
+If `$HOME/.local/bin/` is not in your path, you can include it with the following command:
 
 ```bash
 PATH=~/.local/bin:$PATH
 ```
 
-Then run:
+## Normal Installation
+
+After you obtain `xadf` executable and put it in an appropriate location, you can then run:
 
 ```bash
-xadf -i [--seat DIR] [--branch BRANCH] [--heno]
+xadf -i [--seat DIR] [--branch BRANCH] [--xadf-repo]
 ```
 
 Option `--seat DIR` will change default git directory from `~/xadf` to DIR. DIR can be any directory under home of your choice, (eg. `~/.xadf` or `~/.dotfiles`).
 
 Option `--branch BRANCH` will change checked out branch from default branch to branch BRANCH (of your choice). The branch must already exist in your repository.
 
-As we are downloading from https git clone url, we must provide our credentials on every push. This is generally undesirable. Provided that we already set up ssh keys in our environment, we can use option `--heno` to change the link from https clone url to git ssh clone url.
+As we are downloading from https git clone url, we must provide our credentials on every push. This is generally undesirable. Provided that we already set up ssh keys in our environment, we can use option `--xadf-repo` to change the link from https clone url to our git ssh clone url. If you wish to set up a custom git clone url, consider using `--set-origin-url/-o URL` option.
 
 If `xadfrc` is not created during installation, or if it is damaged at later date, you can use `xadf -x` or `xadf --build-xadfrc` to rebuild it. If you set up a custom git DIR with `--seat DIR`, then you may need to also supply it when building `xadfrc`, or else it would point to wrong `$xadfdir` location.
 
-You can actually move the `$xadfdir` location from default `~/xadf` or any previously set directory (eg. moving it to `~/.dotfiles` or `~/.xadf`), and then update `xadfrc` with the following commands:
+Or you might as well perform a [custom installation](#custom-installation).
+
+## Custom Installation
+
+After having cloned this repository to your `$HOME` and setting up `xadf` accordingly (should already be done with `-i` option), circumstances might arise where you need to change your git directory. For example if you have already cloned this repository and the git repository is set to `~/xadf` (the default behavior when you just run `xadf -i`), you may want to change it to something like `~/.dotfiles`.
+
+In that case, you can actually move the `$xadfdir` location from default `~/xadf` or any previously set directory (eg. moving it to `~/.dotfiles` or `~/.xadf`), and then update `xadfrc` with the following commands:
 
 ```bash
 # Move git directory (eg. from ~/xadf to ~/.dotfiles)
@@ -475,6 +568,84 @@ xadf -x --seat ~/.dotfiles
 # Check whether everything is succesfully configured or not
 xadf status -sb
 ```
+
+If the command sequences above are too scary for you, there's actually a shortcut for all of that built into `xadf` itself. After you copy or move your git directory to any DIR you prefer (in this example you move `~/xadf` to `~/.dotfiles`), you can run the following:
+
+```bash
+# change DIR to your preferred location (eg. ~/.dotfiles)
+xadf -x --seat DIR
+xadf -r
+xadf -t
+. ~/.bashrc
+```
+
+Or alternately, you can just run this to perform all of the actions above:
+
+```bash
+xadf --custom-install [--seat DIR]
+. ~/.bashrc
+```
+
+Really, it can't be any simpler than that.
+It will configure your `.bashrc` to load `xadfrc`, and `xadfrc` will be configured to set `$xadfdir` to DIR. This is also particularly useful if you want to _switch to your own bare git repository_.
+
+However if you want to start everything from scratch, including starting your own bare git repository, or if you don't want to ruin your current perfect set up, you may want to consider [minimal install](#minimal-installation) instead.
+
+## Minimal Installation
+
+If you prefer a more DIY approach or you do not want to ruin your `$HOME` with my configuration files, it is actually possible to *only* install `xadf` and nothing else (not even cloning from my repository). This is the least invasive method I can craft for you.
+
+After all, the only files actually required for `xadf` to run are:
+
+```
+# The xadf executable
+~/.local/bin/xadf
+
+# Templates for xadf configuration files
+~/.local/xadf/templates/bash_aliases
+~/.local/xadf/templates/bash_functions
+~/.local/xadf/templates/default-recipe.txt
+~/.local/xadf/templates/template-xadfrc
+```
+
+Once they are downloaded and placed in appropriate locations, you just have to make `xadf` executable and put `~/.local/bin` in your `$PATH`. You can do it all by yourself (manually navigate to those files from my repository, download them, and place them in appropriate locations), or after you [obtain the executable](#obtaining-xadf-executable), you can just run:
+
+```bash
+# Install the minimal set of xadf files
+xadf --minimal-install
+```
+
+Then you can do anything you like, really.
+
+If you want to initialize a new bare git repository, run:
+
+```bash
+# if --seat is not specified, default to ~/xadf
+xadf --init-bare [--seat DIR]
+```
+
+Then you will need to configure your `xadf` to point to and manage the newly created bare git directory with:
+
+```bash
+# specify --seat DIR if your git repository is anywhere but ~/xadf
+xadf --custom-install [--seat DIR]
+```
+
+Alternatively, you may already have a dotfiles repository designed to be managed by git, or specifically configured for bare git and alias method. You can then automagically use `xadf` to replicate your configurations by running:
+
+```bash
+xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
+```
+
+Note that:
+
+1. URL is the url of your git repository that xadf should clone from.
+1. DIR is your preferred location for git directory (eg. ~/.dotfiles).
+   If DIR is not specified, defaults to '~/xadf'
+1. BRANCH is the git branch of your liking from your configuration.
+   If BRANCH is not specified, defaults to 'trunk'
+
+If you are using this method of installing `xadf`, the only reference to my repository is just hardcoded in `xadf` file itself. This is only required so you can keep your `xadf` updated to the latest version by simply rerunning `xadf --minimal-install`.
 
 ## Dependencies of xadf
 
