@@ -2,8 +2,7 @@ cat <<EOF
 #!/bin/bash
 
 # If \$HOME/.local/bin does not exist, make one
-test ! -d "\$HOME/.local" && mkdir "\$HOME/.local"
-test ! -d "\$HOME/.local/bin" && mkdir "\$HOME/.local/bin"
+test ! -d "\$HOME/.local/bin" && mkdir -p "\$HOME/.local/bin"
 
 # Custom PATH: if \$HOME/.local/bin is not present in \$PATH, include it
 test -z "\$(echo \$PATH|grep "\$HOME/\.local/bin")" && PATH="\$HOME/.local/bin:\$PATH"
