@@ -1,17 +1,41 @@
-# ~/.* managed with xadf
+---
+title: Xeno Authority Dot Files
+subtitle: xadf Technical Documentation and Manual
+author: Hendrik Lie
 
-![Obligatory screenshot](pics/screenshot.png)
+## Fonts and formatting.
+fontfamily: times
+fontsize: 12pt
+linestretch: 1.25
+indent: true
+papersize: a4
 
-Welcome to my dotfiles repository! Managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](.local/bin/xadf)) that also functions as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
-Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)) either for my use or just for fun.
+## Layout?
+numbersections: true
+secnumdepth: 1
+
+## part, chapter, section, or default:
+top-level-division: chapter
+toc-depth: 2
+hyperrefoptions: linktoc=all
+reference-section-title: Bibliography
+documentclass: book
+
+## Language
+lang: en-US
+---
+
+`xadf` (an acronym for *Xeno Authority Dot Files*) is a wrapper script for creating, authoring, and managing dotfiles as a bare git repository with [bare git and alias method](https://news.ycombinator.com/item?id=11071754). All you have to do is to [obtain the executable and place them in an appropriate path](#obtaining-xadf-executable), then you can perform [minimal installation](#minimal-installation) and set up a bare git repository with a git directory somewhere at `$HOME`. Instead of setting up a new bare git repository, it is actually possible to configure `xadf` to manage your own custom bare git directory with [custom installation](#custom-installation).
+
+Have fun :)
 
 > **Disclaimer:** While the idea (and name) of `xadf` dates back to [my original](#migrating-from-xadf-v0), butchered ways of backing up dotfiles, I was inspired to create the current implementation after reading through [Alfunx's implementation on additional commands](https://github.com/alfunx/.dotfiles#additional-commands).
 
-[TOC]
-
 > **Note for forkers:** It is not recommended to use my setup right away. You should at least inspect the scripts and configuration files of my setup. Maybe you'd be more interested in the main `xadf` script, how it manages dotfiles at home directory, what to change if you're forking this repository (or `xadf` specifically) or its installation steps.
-> 
+
 > In that case you may wish to jump to [Code Design of xadf](#code-design-of-xadf) for an overview of `xadf` code structure, [Installation](#installation-of-xadf) on how to install `xadf` and use it to manage your dotfiles with git, or even reading through `xadf`'s [technical specifications](#implementing-bare-git-with-alias-method-as-a-helper-script).
+
+[TOC]
 
 # Introduction
 
@@ -57,6 +81,7 @@ Additionally, since we are cloning from git https clone url, we may need to chan
 xadf config status.showUntrackedFiles no
 xadf remote set-url origin git@gitlab.com:heno72/xadf-gb.git
 ```
+
 > Note that since untracked files are not shown, when you made changes to file you actually track, it is tempting to just use `xadf add .` especially when you have a bunch of them. **_DON'T!_** Just don't, as it means you'd include all files in `$HOME`, which is certainly undesirable. You should specify each files you want to add.
 
 ## Usage
@@ -177,7 +202,7 @@ xadf/              # the default git directory for xadf ($xadfdir), configurable
   xadf/            # $xadfconfig
     xadfrc         # formerly head.sh, sourced from .bashrc
     recipe.txt     # to determine which modules from $xadfmods to load
-README.md          # this file                         (branch master only)
+README.md          # a readme file                     (branch master only)
 LICENSE            # our license file, currently GPLv3 (branch master only)
 ```
 
@@ -635,7 +660,7 @@ xadf --custom-install [--seat DIR]
 Alternatively, you may already have a dotfiles repository designed to be managed by git, or specifically configured for bare git and alias method. You can then automagically use `xadf` to replicate your configurations by running:
 
 ```bash
-xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
+xadf -i -s URL [--seat DIR] [-b BRANCH]
 ```
 
 Note that:
