@@ -1,9 +1,9 @@
-# `~/.*` managed with `xadf`
+# ~/.* managed with xadf
+
+Welcome to my dotfiles repository! Managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](docs/xadf.md)) that also functions as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
+Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)) either for my use or just for fun.
 
 ![Obligatory screenshot](pics/screenshot.png)
-
-Welcome to my dotfiles repository! Managed with [bare git and alias method](https://news.ycombinator.com/item?id=11071754), implemented as a custom controller script ([`xadf`](.local/bin/xadf)) that also functions as a standalone installation script to replicate my dotfiles configuration to any unix home directory with bash.
-Also features a number of custom bash functions (the [`$xadfmods`](.local/xadf/)) either for my use or just for fun.
 
 [TOC]
 
