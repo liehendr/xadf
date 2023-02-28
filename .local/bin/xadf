@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.19.20230228.0443+helpful_custom_install
+version=v1.20.20230301.0031+streamlined_build_xadfrc
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -72,7 +72,7 @@ fi
 xadf_build_xadfrc(){
 # builds xadfrc
 printf "===> [xadf]: Generate xadfrc...\n"
-. ~/.local/xadf/templates/template-xadfrc | sed "s#$HOME#\$HOME#" > ~/.config/xadf/xadfrc
+sed "s#XADFDIR#$install_seat#;s#$HOME#\$HOME#" ~/.local/xadf/templates/template-xadfrc > ~/.config/xadf/xadfrc
 if test $? -gt 0
 then
 	printf "===> [xadf]: FAIL\n"
