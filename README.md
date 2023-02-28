@@ -648,6 +648,8 @@ Note that:
 
 If you are using this method of installing `xadf`, the only reference to my repository is just hardcoded in `xadf` file itself. This is only required so you can keep your `xadf` updated to the latest version by simply running `xadf --minimal-install [--branch BRANCH]` again.
 
+> **Note:** currently there's a bug where after `xadf` is updated in that manner, some bash error messages are shown without impeding the function of the script. It is apparently safe to ignore, as it might be caused by bash trying to access the old `xadf` executable that will be rewritten when using `--minimal-install`. The function will run just fine because the executable rewriting will happen near the end of the file as function `xadf_minimal_install()` is actually invoked.
+
 ## Dependencies of xadf
 
 `xadf` is nothing but a single executable bash script, and depends on a variety of programs installed in your environment. The following is a non-exahustive list of programs that you need to have installed before running the script:
