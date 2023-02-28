@@ -1,24 +1,22 @@
-cat <<EOF
 #!/bin/bash
 
-# If \$HOME/.local/bin does not exist, make one
-test ! -d "\$HOME/.local/bin" && mkdir -p "\$HOME/.local/bin"
+# If $HOME/.local/bin does not exist, make one
+test ! -d "$HOME/.local/bin" && mkdir -p "$HOME/.local/bin"
 
-# Custom PATH: if \$HOME/.local/bin is not present in \$PATH, include it
-test -z "\$(echo \$PATH|grep "\$HOME/\.local/bin")" && PATH="\$HOME/.local/bin:\$PATH"
+# Custom PATH: if $HOME/.local/bin is not present in $PATH, include it
+test -z "$(echo $PATH|grep "$HOME/\.local/bin")" && PATH="$HOME/.local/bin:$PATH"
 
 # xadf variable declarations
-declare -x xadfconfig="\$HOME/.config/xadf"
-declare -x xadfmods="\$HOME/.local/xadf"
-declare -x xadfdir="$install_seat"
+declare -x xadfconfig="$HOME/.config/xadf"
+declare -x xadfmods="$HOME/.local/xadf"
+declare -x xadfdir="XADFDIR"
 
-# Check whether bash_aliases and bash_functions in \$xadfmods exist
-test ! -f "\$xadfmods/bash_aliases"   && cp "\$xadfmods/templates/bash_aliases"   "\$xadfmods/bash_aliases"
-test ! -f "\$xadfmods/bash_functions" && cp "\$xadfmods/templates/bash_functions" "\$xadfmods/bash_functions"
+# Check whether bash_aliases and bash_functions in $xadfmods exist
+test ! -f "$xadfmods/bash_aliases"   && cp "$xadfmods/templates/bash_aliases"   "$xadfmods/bash_aliases"
+test ! -f "$xadfmods/bash_functions" && cp "$xadfmods/templates/bash_functions" "$xadfmods/bash_functions"
 
 # Check whether recipe.txt exists, if it doesn't, generate one
-test ! -f "\$xadfconfig/recipe.txt" && xadf --build-recipe
+test ! -f "$xadfconfig/recipe.txt" && xadf --build-recipe
 
-. \$xadfconfig/recipe.txt
+. $xadfconfig/recipe.txt
 
-EOF
