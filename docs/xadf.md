@@ -535,14 +535,14 @@ I have designed this project in a way that replicating my configuration is as si
 You can download xadf script [here](https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf). Then you need to make it executable. Place it somewhere in your `$PATH`. Ideally save it as `$HOME/.local/bin/xadf` so it will be replaced with the latest version of `xadf` from our git repository.
 
 ```bash
+# Make ~/.local/bin if it isn't already present
+mkdir -p ~/.local/bin
+
 # Download the script
-wget -c https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf
+wget -O ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf
 
 # Make the script executable
-chmod +x xadf
-
-# Move to local bin directory, you may need to make it.
-mv xadf ~/.local/bin/
+chmod +x ~/.local/bin/xadf
 ```
 
 If `$HOME/.local/bin/` is not in your path, you can include it with the following command:

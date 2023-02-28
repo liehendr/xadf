@@ -140,20 +140,32 @@ xadf push
 
 After trying both methods outlined above, I find myself liking the bare git and alias method. However I wanted more: a way to perform all of the steps outlined in the previous section from just a single wrapper script. I also want the file to be the one that will also manage the dotfiles after everything is set up. One of the requirement of such script is that it can be minimally invasive to existing setup. You may want to read more to read how I [implement the script here](docs/xadf.md#implementing-bare-git-with-alias-method-as-a-helper-script).
 
-To demonstrate the prowess of my implementation, here's how I can rapidly set up a new empty bare git repository after [obtaining the script and placing it in my PATH](docs/xadf.md#obtaining-xadf-executable):
+All I need is to [obtain the script and place it somewhere in my PATH](docs/xadf.md#obtaining-xadf-executable). Then I can have a minimal installation with:
 
 ```bash
-# Install xadf base files necessary to configure it
-xadf --minimal-install
+# Make directory, if it isn't present already
+mkdir -p ~/.local/bin
 
-# Initialize an empty bare git repository and configure xadf to manage it
+# Download the executable into your local bin directory
+wget -O ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/master/.local/bin/xadf
+
+# Make it executable
+chmod +x ~/.local/bin/xadf
+
+# Export path to local bin if it isn't set up already
+PATH=~/.local/bin:$PATH
+
+# Install xadf minimally
+xadf --minimal-install
+```
+
+Afterwards, I can configure it into anyway I like. To demonstrate the prowess of my implementation, here's how I can rapidly set up a new empty bare git repository:
+
+```bash
+# initialize, configure, load, and manage
 xadf --init-bare --seat ~/.dotfiles
 xadf --custom-install --seat ~/.dotfiles
-
-# Source ~/.bashrc to load the new configuration
 . ~/.bashrc
-
-# Hide untracked files
 xadf config status.showUntrackedFiles no
 ```
 
@@ -162,20 +174,13 @@ You can read more about this from my [minimal installation guide](docs/xadf.md#m
 I might also have already a custom dotfiles repository meant to be managed by bare git and alias method, and I want `xadf` to clone and manage them.
 
 ```bash
-# skip this if you already have it configured
-xadf --minimal-install
-
-# Clone from my custom dotfiles repository
+# Clone and configure from a custom url, load, and manage
 xadf -i -s git@gitlab.com:heno72/xadf-gb.git --seat ~/.dotfiles
-
-# Source ~/.bashrc to load the new configuration
 . ~/.bashrc
-
-# Check the status of my repository
 xadf status -sb
 ```
 
-Suppose, you already have one existing bare git repository at `~/.dotfiles` managed with an alias as in vanilla bare git and alias method. After installing xadf with `xadf --minimal-install`, you want to manage your existing bare git repository with `xadf` instead of your own alias. In that case, you can [configure xadf to manage the custom git directory](docs/xadf.md#custom-installation) with:
+Suppose, you already have one existing bare git repository at `~/.dotfiles` managed with an alias as in vanilla bare git and alias method. Now you want to manage your existing bare git repository with `xadf` instead of your own alias. In that case, you can [configure xadf to manage the custom git directory](docs/xadf.md#custom-installation) with:
 
 ```bash
 xadf --custom-install --seat ~/.dotfiles
