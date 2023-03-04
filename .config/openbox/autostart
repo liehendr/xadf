@@ -3,7 +3,8 @@
 #(sleep 2s && xset -dpms; xset s off) &
 
 ## Basic compositing effects
-(sleep 1s && compton -CGb) &
+#(sleep 1s && compton -CGb) &
+(sleep 1s && picom -cb --vsync --backend glx) &
 
 ## Panel
 (sleep 1s && tint2) &
@@ -14,14 +15,14 @@
 ## Startup
 
 (sleep 2s && pnmixer) &
-#[[ -f /usr/bin/pnmixer ]] && (sleep 1s && pnmixer) &
+[[ -f /usr/bin/pnmixer ]] && (sleep 1s && pnmixer) &
 [[ -f /usr/bin/conky ]] && (sleep 3s && conky) &
 
 (sleep 1s && nm-applet) &
 (sleep 1s && octopi-notifier) &
 
 ## Optionally enable file manager in daemon mode for automounting
-(sleep 1s && pcmanfm-qt -d) &
+#(sleep 1s && pcmanfm-qt -d) &
 
 ## Optionally enable screensaver
 (sleep 1s && xautolock -time 15 -locker 'xlock -mode blank') &
@@ -45,13 +46,14 @@ lxpolkit &
 /usr/bin/gnome-keyring-daemon --start --components=secrets,pkcs11,ssh &
 
 # Pretty self-explanatory: to start synapse
-synapse -s &
+#synapse -s &
 
 # To start ulauncher, if installed
 #(sleep 3s && env GDK_BACKEND=x11 /usr/bin/ulauncher --hide-window) &
 
 # To start dropbox
-dropbox start -i &
+# dropbox start -i &
+syncthing &
 
 # To enable power manager of xfce (I forget why I put it here)
 xfce4-power-manager &
