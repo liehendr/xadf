@@ -4,7 +4,8 @@ REPOUP_SEAT="$HOME/.config/repoup"
 REPOUP_DEFAULT_DIRECTORY="$PWD"
 REPOUP_DEFAULT_PREFIX="etc"
 REPOUP_DRYRUN=0
-REPOUP_VERSION="0.1"
+REPOUP_VERSION="0.2"
+REPOUP_BASENAME="$(basename $0)"
 
 # Make required directories if nonexistent
 if [ ! -d "${REPOUP_SEAT}" ]
@@ -20,7 +21,7 @@ fi
 # For timestamping purposes
 pulltimestamp(){
 jobtime="$(date +'%Y-%m-%d %H:%M:%S')"
-echo "[Current Time]: $jobtime"
+printf "[Current Time]: %s\n" "$jobtime"
 }
 
 # Function usage:
@@ -45,10 +46,10 @@ do
     cd $repo
     # Timestamping
     pulltimestamp
-    echo "[reposupdate]: git pull on $repo"
+    printf "[reposupdate]: git pull on %s\n" "$repo"
     if [ $REPOUP_DRYRUN = 1 ]
     then
-      echo "[$repo]: git pull"
+      printf "[%s]: git pull\n" "$repo"
     else
       git pull
     fi
@@ -68,7 +69,7 @@ git_puller(){
 
   if [ $REPOUP_DRYRUN = 1 ]
   then
-    echo "[$0]: Logging into logfile: ${REPOUP_LOGFILE}"
+    printf "[%s]: Logging into logfile: %s\n" "${REPOUP_BASENAME}" ${REPOUP_LOGFILE}
   fi
   # perhaps we can later configure it to not produce log files?
   repoupdate "$REPOUP_TARGET" | tee "${REPOUP_LOGFILE}"
@@ -76,7 +77,7 @@ git_puller(){
 
 REPOUP_SHOW_HELP(){
 cat << EOF
-$0 version $REPOUP_VERSION
+${REPOUP_BASENAME} version ${REPOUP_VERSION}
 
   A tool to quickly pull all repositories in a directory. Will shift through
   all files in a directory (not recursive), and check whether or not they are
@@ -84,7 +85,7 @@ $0 version $REPOUP_VERSION
 
 Usage:
 
-  $0 -d "/path/to/repo/collection" -p other_repos
+  ${REPOUP_BASENAME} -d "/path/to/repo/collection" -p other_repos
 
 Options:
 
@@ -124,7 +125,7 @@ while :; do
       shift
       ;;
     -v | --version )
-      printf "$0 version %s\n" "$REPOUP_VERSION"
+      printf "%s version %s\n" "$REPOUP_BASENAME" "$REPOUP_VERSION"
       exit 0
       ;;
     -- ) # end of all options
