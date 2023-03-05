@@ -53,8 +53,43 @@ xadf_prompt[arch]="\[$reset\]\[$cyan\][\[$bold\]\[$user_color\]\u@\h\\[$reset\]\
 xadf_prompt[arch_plain]='[\u@\h \W]\$ '
 xadf_prompt[fedora]="\[$reset\]\[$cyan\][\[$user_color\]\u@\h\\[$reset\]\[$blue\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
 xadf_prompt[termux]="\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]$\[\e[0m\] "
+xadf_prompt[termux_terse]="\[\e[0;32m\]\W\[\e[0m\] \[\e[0;97m\]$\[\e[0m\] "
 xadf_prompt[ubuntu]="\[$reset\]\[$user_color\]\[$bold\]\u@\h\[$reset\]:\[$blue\]\[$bold\]\w\[$reset\]\\$ "
 xadf_prompt[ubuntu_default]="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+
+psmod(){
+local style
+style="$1"
+
+case $style in
+  --help|-h)
+    printf "Commands:\n\n"
+    printf "    psmod <style>\t\tset style to <style>\n"
+    printf "    psmod --list/-l\t\tlist styles\n"
+    printf "    psmod --help/-h\t\tshow this help text\n\n"
+    ;;
+  --list|-l)
+    printf "Existing prompt styles:\n\n"
+    for i in ${!xadf_prompt[@]}
+    do
+      printf " --> %s\n" "$i"
+    done
+    printf "\nTo select a prompt style:\n"
+    printf "  psmod <style>\n\n"
+    ;;
+  "")
+    printf >&2 "No arguments! See 'psmod --help'\n\n"
+    ;;
+  *)
+    if [[ -n "${xadf_prompt[$style]}" ]]
+    then
+      unset PS1 && export PS1="${xadf_prompt[$style]}"
+    else
+      printf >&2 "Specified style does not exist! See 'psmod --list' for list of styles\n\n"
+    fi
+    ;;
+esac
+}
 
 promptstyler(){
 test -n "$1" && verbosity="$1"
