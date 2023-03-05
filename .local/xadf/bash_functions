@@ -100,7 +100,7 @@ esac
 type emulate >/dev/null 2>/dev/null || alias emulate=true
 
 # If ~/.notes does not exist, create one
-test ! -d ~/.notes -o -L ~/.notes && mkdir ~/.notes
+test ! -d ~/.notes -o ! -L ~/.notes && mkdir ~/.notes
 
 # Notetaking function. To use:
 #   n file ...
