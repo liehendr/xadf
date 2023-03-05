@@ -45,7 +45,7 @@ white=$(tput setaf 7)
 spacedust=$(tput setaf 246)
 
 # Now we want to filter the kinds of operating system we're on
-xadf_distro_name=$(grep ^NAME /etc/os-release|sed 's_^NAME=__;s_\"__g')
+test -f /etc/os-release && xadf_distro_name=$(grep ^NAME /etc/os-release|sed 's_^NAME=__;s_\"__g')
 
 # Prompts, different style of (as an associative array)
 declare -A xadf_prompt
