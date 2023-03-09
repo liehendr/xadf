@@ -1,0 +1,24 @@
+## Other convenience options
+--mtime
+--embed-chapters
+
+## Subtitles
+# --sub-format srt
+--write-subs
+--sub-langs "en,id"
+--convert-subs srt
+
+# Formats
+-f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b"
+-S "res:720"
+
+## Path
+-P ~/Videos/Youtube
+# For individual videos
+-o "%(uploader)s/%(title)s.%(ext)s"
+# For playlists
+# -o "%(uploader)s/%(playlist)s/%(playlist_index)s-%(title)s.%(ext)s"
+
+## Archive files
+--download-archive ~/.yt-dlp/archive.txt
+# --download-archive "%(uploader)s/archive.txt"
