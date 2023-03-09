@@ -89,7 +89,7 @@ case $1 in
     ;;
   l|list|updatelist)
     # Update playlist file
-    ls|grep -i "mkv\|mp4" |tee play.list
+    ls|grep -i "mkv$\|mp4$" |tee play.list
     ;;
 esac
 }
