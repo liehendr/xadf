@@ -18,6 +18,8 @@
 -o "%(uploader)s/%(title)s.%(ext)s"
 # For playlists
 # -o "%(uploader)s/%(playlist)s/%(playlist_index)s-%(title)s.%(ext)s"
+# For chapters (probably doesn't work)
+# -o "%(uploader)s/%(title)s/%(section_number)s-%(section_title)s.%(ext)s"
 
 ## Archive files
 --download-archive ~/.yt-dlp/archive.txt
