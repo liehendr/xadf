@@ -25,10 +25,6 @@ exec --no-startup-id nitrogen --restore
 # Compositing effects, compton doesn't seem to work with xfce4-terminal
 # xcompmgr also doesn't work with it either, someone suggested to use
 # picom instead.
-# exec --no-startup-id compton -CGb
-# exec --no-startup-id xcompmgr
-# exec --no-startup-id picom -CGb
-# exec --no-startup-id compton -cCGfF -b -i 0.75 --vsync opengl
 exec --no-startup-id picom -cb --vsync --backend glx
 
 # Start XDG autostart .desktop files using dex. See also
@@ -40,7 +36,7 @@ exec --no-startup-id dex --autostart --environment i3
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock -c 000000 --nofork
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
