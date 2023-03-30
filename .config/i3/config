@@ -178,6 +178,43 @@ bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
+# Assign Startup Application to Specific Workspace
+# To learn about an app's instance and class, use:
+#   xprop|grep ^WM_CLASS
+# Then select a window
+assign [class="^Google-chrome$" instance="^google-chrome$"] 2
+assign [class="^discord$"] 3
+assign [class="^Code$"] 4
+assign [class="^Rhythmbox$"] 9
+assign [class="^SimpleScreenRecorder$"] 10
+# Google Keep
+assign [class="^Google-chrome$" instance="^crx_eilembjdkfgodjkcjnpgpaenohkicgjd$"] 2
+# WhatsApp
+assign [class="^Google-chrome$" instance="^crx_hnpfjngllnobngcgfapefoaidbinmjnm$"] 3
+# Telegram
+assign [class="^Google-chrome$" instance="^crx_aeejceomnhmjmeacdckmmopfaigimnkl$"] 3
+# Twitter
+assign [class="^Google-chrome$" instance="^crx_jgeocpdicgmkeemopbanhokmhcgcflmi$"] 3
+# Youtube Music
+assign [class="^Google-chrome$" instance="^crx_cinhimbnkkaeohfgghhklpknlkffjgod$"] 9
+# Google Sheets and Google Docs
+assign [class="^Google-chrome$" instance="^crx_fhihpiojkbmbpdjeoajapmgkhlnakfjf$"] 4
+assign [class="^Google-chrome$" instance="^crx_fhihpiojkbmbpdjeoajapmgkhlnakfjf$"] 4
+assign [class="^Google-chrome$" instance="^crx_mpnpojknpmmopombnjdcgaaiekajbnjb$"] 4
+
+# Move certain applications to specific workspaces
+# for_window [class="^Google-chrome$" instance="^google-chrome$"] move container to workspace 2
+# for_window [class="^discord$"] move container to workspace 3
+# for_window [class="^Code$"] move container to workspace 4
+# for_window [class="^SimpleScreenRecorder$"] move container to workspace 10
+# Whatsapp
+# for_window [class="^Google-chrome$" instance="^crx_hnpfjngllnobngcgfapefoaidbinmjnm$"] move container to workspace 3
+# Telegram
+# for_window [class="^Google-chrome$" instance="^crx_aeejceomnhmjmeacdckmmopfaigimnkl$"] move container to workspace 3
+# Twitter
+# for_window [class="^Google-chrome$" instance="^crx_jgeocpdicgmkeemopbanhokmhcgcflmi$"] move container to workspace 3
+
+
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
