@@ -214,6 +214,11 @@ assign [class="^Google-chrome$" instance="^crx_mpnpojknpmmopombnjdcgaaiekajbnjb$
 # Twitter
 # for_window [class="^Google-chrome$" instance="^crx_jgeocpdicgmkeemopbanhokmhcgcflmi$"] move container to workspace 3
 
+# Enable floating mode for specific programs
+for_window [class="Nm-connection-editor"] floating enable border normal 1
+for_window [class="Hardinfo"] floating enable border normal 1
+for_window [class="Pavucontrol"] floating enable border normal 1
+for_window [class="Blueman-manager"] floating enable border normal 1
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -269,7 +274,7 @@ bar {
 }
 
 ## Default layout
-# workspace_layout tabbed
+workspace_layout tabbed
 # default_border pixel 24
 
 ## Lockscreen settings
