@@ -180,6 +180,7 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 #   xprop|grep ^WM_CLASS
 # Then select a window
 assign [class="^Google-chrome$" instance="^google-chrome$"] 2
+assign [class="^firefox$"] 5
 assign [class="^discord$"] 3
 assign [class="^Code$"] 4
 assign [class="^Rhythmbox$"] 9
