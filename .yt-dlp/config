@@ -13,7 +13,7 @@
 -S "res:720"
 
 ## Path
--P ~/Videos/Youtube
+-P ~/Videos/yt-dlp
 # For individual videos
 -o "%(uploader)s/%(title)s.%(ext)s"
 # For playlists
