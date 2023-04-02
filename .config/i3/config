@@ -184,6 +184,7 @@ assign [class="^firefox$"] 5
 assign [class="^discord$"] 3
 assign [class="^Code$"] 4
 assign [class="^Rhythmbox$"] 9
+assign [class="^VirtualBox Machine$"] 8
 assign [class="^SimpleScreenRecorder$"] 10
 # Google Keep
 assign [class="^Google-chrome$" instance="^crx_eilembjdkfgodjkcjnpgpaenohkicgjd$"] 2
