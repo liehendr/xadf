@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.20.20230301.0031+streamlined_build_xadfrc
+version=v1.22.20230315.1828+ls-tree_on_custom
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -456,6 +456,19 @@ ENDOFFILE
 # $(printf "%s\n" "$install_seat"|sed 's#$HOME#\$HOME#')                          
 }
 
+# Parses all arguments as git arguments
+xadf_git(){
+case $1 in
+    -l | --list-tree )
+	    shift
+		xadf_git ls-tree --full-tree -r --name-only HEAD "$@"
+		;;
+	* )
+	    test -n "$xadfdir" && git --git-dir="$xadfdir" --work-tree="$HOME" "$@"
+	    ;;
+esac
+}
+
 # Option parser
 while :; do
 	case $1 in
@@ -465,7 +478,7 @@ while :; do
 			# specify which file or directory do we want to see (just like ls in some
 			# ways).
 			shift
-			test -n "$xadfdir" && git --git-dir="$xadfdir" --work-tree="$HOME" ls-tree --full-tree -r --name-only HEAD "$@"
+			xadf_git -l "$@"
 			exit 0
 			;;
 		-h | --help ) # show help text, then exit
@@ -565,11 +578,19 @@ while :; do
 				exit 13
 			else # shift arguments to just git commands, then run git, and exit
 				export install_seat="$(realpath $2)"
+				# Makes xadf_git() usable for this purpose
+				export xadfdir="$install_seat"
 				shift 2
-				git --git-dir="$install_seat" --work-tree="$HOME" "$@"
+				xadf_git "$@"
 				exit 0
 			fi
 			;;
+        # Stop parsing xadf arguments and consider the rest as git arguments
+        -- )
+            shift
+			xadf_git "$@"
+            break
+            ;;
 		# general matching for all other cases
 		-* ) # invalid options
 			printf >&2 "Error: Invalid flag '%s'\nUsage: xadf -h\n\n" "$1"
@@ -581,7 +602,7 @@ while :; do
 			;;
 		* ) # Practically a git alias with separate git dir
 			# If $xadfdir is not set, then fail
-			test -n "$xadfdir" && git --git-dir="$xadfdir" --work-tree="$HOME" "$@"
+			xadf_git "$@"
 			break
 			;;
 	esac
