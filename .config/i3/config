@@ -186,6 +186,7 @@ assign [class="^Code$"] 4
 assign [class="^Rhythmbox$"] 9
 assign [class="^VirtualBox Machine$"] 8
 assign [class="^SimpleScreenRecorder$"] 10
+assign [class="^libreoffice-*"] 7
 # Google Keep
 assign [class="^Google-chrome$" instance="^crx_eilembjdkfgodjkcjnpgpaenohkicgjd$"] 2
 # WhatsApp
