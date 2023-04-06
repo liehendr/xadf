@@ -20,6 +20,8 @@ assign [class="^Google-chrome$" instance="^crx_hnpfjngllnobngcgfapefoaidbinmjnm$
 assign [class="^Google-chrome$" instance="^crx_aeejceomnhmjmeacdckmmopfaigimnkl$"] 3
 # Twitter
 assign [class="^Google-chrome$" instance="^crx_jgeocpdicgmkeemopbanhokmhcgcflmi$"] 3
+# Instagram
+assign [class="^Google-chrome$" instance="^crx_maonlnecdeecdljpahhnnlmhbmalehlm$"] 3
 # Youtube Music
 assign [class="^Google-chrome$" instance="^crx_cinhimbnkkaeohfgghhklpknlkffjgod$"] 9
 # Google Sheets and Google Docs
