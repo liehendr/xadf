@@ -25,8 +25,8 @@ assign [class="^Google-chrome$" instance="^crx_maonlnecdeecdljpahhnnlmhbmalehlm$
 # Youtube Music
 assign [class="^Google-chrome$" instance="^crx_cinhimbnkkaeohfgghhklpknlkffjgod$"] 9
 # Google Sheets and Google Docs
-assign [class="^Google-chrome$" instance="^crx_fhihpiojkbmbpdjeoajapmgkhlnakfjf$"] 4
-assign [class="^Google-chrome$" instance="^crx_mpnpojknpmmopombnjdcgaaiekajbnjb$"] 4
+assign [class="^Google-chrome$" instance="^crx_fhihpiojkbmbpdjeoajapmgkhlnakfjf$"] 7
+assign [class="^Google-chrome$" instance="^crx_mpnpojknpmmopombnjdcgaaiekajbnjb$"] 7
 
 # Move certain applications to specific workspaces
 # for_window [class="^Google-chrome$" instance="^google-chrome$"] move container to workspace 2
