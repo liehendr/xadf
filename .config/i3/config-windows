@@ -9,7 +9,8 @@ assign [class="^Code$"] 4
 assign [class="^Rhythmbox$"] 9
 assign [class="^VirtualBox Machine$"] 8
 assign [class="^SimpleScreenRecorder$"] 10
-assign [class="libreoffice"] 7
+# assign [class="libreoffice"] 7
+assign [class="^LosslessCut$"] 6
 
 ### Google Apps ###
 # Google Keep
@@ -29,16 +30,7 @@ assign [class="^Google-chrome$" instance="^crx_fhihpiojkbmbpdjeoajapmgkhlnakfjf$
 assign [class="^Google-chrome$" instance="^crx_mpnpojknpmmopombnjdcgaaiekajbnjb$"] 7
 
 # Move certain applications to specific workspaces
-# for_window [class="^Google-chrome$" instance="^google-chrome$"] move container to workspace 2
-# for_window [class="^discord$"] move container to workspace 3
-# for_window [class="^Code$"] move container to workspace 4
-# for_window [class="^SimpleScreenRecorder$"] move container to workspace 10
-# Whatsapp
-# for_window [class="^Google-chrome$" instance="^crx_hnpfjngllnobngcgfapefoaidbinmjnm$"] move container to workspace 3
-# Telegram
-# for_window [class="^Google-chrome$" instance="^crx_aeejceomnhmjmeacdckmmopfaigimnkl$"] move container to workspace 3
-# Twitter
-# for_window [class="^Google-chrome$" instance="^crx_jgeocpdicgmkeemopbanhokmhcgcflmi$"] move container to workspace 3
+for_window [class="libreoffice"] move container to workspace 7
 
 # Enable floating mode for specific programs
 for_window [class="Nm-connection-editor"] floating enable border normal 1
