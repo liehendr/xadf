@@ -5,7 +5,7 @@
 ## Subtitles
 # --sub-format srt
 --write-subs
---sub-langs "en,id"
+--sub-langs "en,id,en-US,en-GB"
 --convert-subs srt
 
 # Formats

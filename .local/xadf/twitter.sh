@@ -91,14 +91,14 @@ ggtake(){
 # Make a file to put twittwr links on,
 # sanitize it, load to input, and remove
 # the file
-GGTAKE="$HOME/.GGTAKE_EDIT"
+GGTAKE="$PWD/.GGTAKE_EDIT"
 nano $GGTAKE
 # remove all contents from the first question mark
 # to the end of line
 sed -i 's/?.*$//' $GGTAKE
+# Check if file exists, then
 # load to input stack, assuming stack.sh is loaded
-stack read $GGTAKE
-rm $GGTAKE
+test -f $GGTAKE && stack read $GGTAKE && rm $GGTAKE
 }
 
 # stage input into file and shift contents
@@ -109,4 +109,17 @@ stack mv beta alpha
 stack mv gamma beta
 stack mv input gamma
 stack save twdl
+stack ls xl
+}
+
+# Create quick functions to save and load from twdl
+
+ggsave(){
+    stack save twdl
+    stack ls xl
+}
+
+ggload(){
+    stack load twdl
+    stack ls xl
 }
