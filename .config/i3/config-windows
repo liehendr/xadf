@@ -1,6 +1,8 @@
 ### Assign Applications to Specific Workspace ###
+
 # To learn about an app's instance and class, use:
 #   xprop|grep ^WM_CLASS
+
 # Then select a window
 assign [class="^Google-chrome$" instance="^google-chrome$"] 2
 assign [class="^firefox$"] 5
@@ -37,3 +39,4 @@ for_window [class="Nm-connection-editor"] floating enable border normal 1
 for_window [class="Hardinfo"] floating enable border normal 1
 for_window [class="Pavucontrol"] floating enable border normal 1
 for_window [class="Blueman-manager"] floating enable border normal 1
+for_window [class="Rox-filer"] floating enable border normal 1
