@@ -35,26 +35,35 @@ igload(){
   stack ls x
 }
 
-# igset will configure convenience aliases
+# ilaset will configure convenience aliases
 # for working with sorting profiles
+declare -A ilavar
+ilavar=(
+p popin
+i 'lto input'
+a 'lto alpha'
+b 'lto beta'
+g 'lto gamma'
+t 'lto trash'
+x 'stack ls x'
+)
+
 ilaset(){
 test -z "$1" && local set="on" || local set="$1"
 
 if [[ "$set" == "on" ]]
 then
-  p(){ popin;}
-  i(){ lto input;}
-  a(){ lto alpha;}
-  b(){ lto beta;}
-  g(){ lto gamma;}
-  t(){ lto trash;}
-  x(){ stack ls x;}
+  for i in ${!ilavar[@]}
+  do eval "$i(){ "${ilavar[$i]}" ;}"
+  done
 elif [[ "$set" == "off" ]]
 then
-  unset -f p i a b g t x
+  for i in ${!ilavar[@]}
+  do unset -f $i
+  done
 elif [[ "$set" == "test" ]]
 then
-  for i in p i a b g t x
+  for i in ${!ilavar[@]}
   do
     type $i 2>&1 > /dev/null
     test $? -eq 0 && echo "$i OK" || echo "$i FAIL"
