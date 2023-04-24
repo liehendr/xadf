@@ -142,13 +142,52 @@ esac
 # Print: simply prints the value of last item in stack [$1]
 print(){
   # sets up local var for evaluation
-  local height=$(eval echo \${#$1[@]})
-  # checks if stack is greater than zero, then proceeds
-  if [ $height -gt 0 ]
+  local i=-1
+  local height varname custom_index=0 error=0 i_gt_h=0
+  # parse arguments
+  while :;
+  do
+    case $1 in
+    -i | --index)
+      # Parsing custom index
+      [[ $2 =~ ^-?[0-9]+$ ]]
+      test $? -eq 0 && local i=$2 custom_index=1 || \
+        local error=1
+      shift 2
+      ;;
+    *)
+      test -n "$1" && local varname="$1" || local error=2
+      test -n "$varname" && \
+        local height=$(eval echo \${#$varname[@]})
+      break
+      ;;
+    esac
+  done
+  if test $error -gt 0
   then
-    eval echo \${$1[\${#$1[@]}-1]}
-  else # if stack is empty, then just shout that it is empty
-    echoerr "Stack [$1] is empty"
+    echoerr "Error: $error"
+    case $error in
+      1)
+        echoerr "Given index ($i) is not an integer!"
+        ;;
+      2)
+        echoerr "No stack name is provided!"
+        ;;
+    esac
+  else
+    test $custom_index -gt 0 && \
+      test $i -ge $height && \
+      local i=$((height-1)) i_gt_h=1
+    # checks if stack is greater than zero, then proceeds
+    if [ $height -gt 0 ]
+    then
+      if [ $i_gt_h -gt 0 ]; then
+        echoerr "Index is too high! Print index: $i"
+      fi
+      eval echo \${$varname[$i]}
+    else # if stack is empty, then just shout that it is empty
+      echoerr "Stack [$varname] is empty"
+    fi
   fi
 }
 
