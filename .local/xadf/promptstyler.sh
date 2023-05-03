@@ -29,6 +29,12 @@
 # Active prompt style in container image 'archlinux-latest':
 # PS1="\[\e]0;\u@\h: \w\a\]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]$ "
 
+# A function to parse git branch, taken from: https://stackoverflow.com/a/35218509
+# Git branch in prompt.
+__git_branch() {
+    git -c color.ui=always branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
 # Obtained from https://unix.stackexchange.com/a/31697/282465
 # But there is a similar one at https://askubuntu.com/a/670600/126560
 # color names for readibility
@@ -50,6 +56,7 @@ test -f /etc/os-release && xadf_distro_name=$(grep ^NAME /etc/os-release|sed 's_
 # Prompts, different style of (as an associative array)
 declare -A xadf_prompt
 xadf_prompt[arch]="\[$reset\]\[$cyan\][\[$bold\]\[$user_color\]\u@\h\\[$reset\]\[$blue\]\[$bold\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
+xadf_prompt[arch_git]="\[$reset\]\[$cyan\][\[$bold\]\[$user_color\]\u@\h\\[$reset\]\[$blue\]\[$bold\] \W\[$reset\]\[$cyan\]]\$(__git_branch)\\$\[$reset\] "
 xadf_prompt[arch_plain]='[\u@\h \W]\$ '
 xadf_prompt[fedora]="\[$reset\]\[$cyan\][\[$user_color\]\u@\h\\[$reset\]\[$blue\] \W\[$reset\]\[$cyan\]]\\$\[$reset\] "
 xadf_prompt[termux]="\[\e[0;32m\]\w\[\e[0m\] \[\e[0;97m\]$\[\e[0m\] "
