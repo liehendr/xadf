@@ -1,0 +1,3 @@
+[submodule ".zsh_custom"]
+	path = .zsh_custom
+	url = https://gitlab.com/heno72/zsh_custom
