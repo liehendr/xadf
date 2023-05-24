@@ -25,3 +25,4 @@ if test -n "$BASH_VERSION" ; then
   # Source recipe.txt
   . $xadfconfig/recipe.txt
 fi
+
