@@ -21,11 +21,11 @@ do # set them into an array
 done
 IFS="$ifs"
 
-major_ver=${parsed_xadf_version[0]}
-minor_ver=${parsed_xadf_version[1]}
+major_ver=${xadf_version_array[0]}
+minor_ver=${xadf_version_array[1]}
 
 export xadf_major_ver="v${major_ver}"
-export xadf_minor_ver=$((++xadf_minor_ver))
+export xadf_minor_ver=$((++minor_ver))
 }
 
 xadf_check_ver_config(){
