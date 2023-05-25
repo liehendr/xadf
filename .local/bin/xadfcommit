@@ -92,19 +92,27 @@ if test $? -gt 0
 then
   printf >&2 "WARNING! Malformed executable '%s'\n" "${git_xadf_path}"
 else
-  git add ${xadf_is_modified}
-  git commit
+  if test ${xadfcommit_nogit} -eq 0 ; then
+    git add ${xadf_is_modified}
+    git commit
+  fi
 fi
 }
 
 # Changing to executable script instead of just a function
 # xadfcommit(){
+
 # Safety feature, if 1 then abort at execution
 xadfcommit_bad_states=0
+
+# Safety feature, if 1 then only test and modify, but
+# do not do git operations
+xadfcommit_nogit=0
 
 # Parse arguments and call functions
 # If -L/--label is given, parse label
 # If -p/--path is given, use path
+# if -n/--no-git is given, do not perform git operations
 
 while :;
 do
@@ -129,6 +137,9 @@ do
       else
         export git_xadf_path="$(realpath $2)"
       fi
+      ;;
+    -n | --no-git )
+      export xadfcommit_nogit=0
       ;;
     "" )
       break
