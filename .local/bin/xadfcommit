@@ -19,7 +19,7 @@ fi
 
 # Check if xadf is modified
 # If it is, add to variable
-xadf_check_modified(){
+xadf_check_path(){
 unset xadf_is_modified git_xadf_path
 xadf_is_modified=$(git status -s|grep xadf$|sed 's_...__')
 if test -z "$xadf_is_modified"
@@ -68,6 +68,7 @@ export xadfcommit_bad_states=0
 
 # Parse arguments and call functions
 # If -L/--label is given, parse label
+# If -p/--path is given, use path
 
 while :;
 do
@@ -77,10 +78,20 @@ do
       then
         printf >&2 "WARNING! No label given\n"
         export xadfcommit_bad_states=1
-        break
+        exit 1
       else
         xadf_version_label="$2"
         shift 2
+      fi
+      ;;
+    -p | --path )
+      if test -z "$2"
+      then
+        printf >&2 "WARNING! No path to xadf given\n"
+        export xadfcommit_bad_states=1
+        exit 2
+      else
+        export git_xadf_path="$(realpath $2)"
       fi
       ;;
     "" )
@@ -89,7 +100,7 @@ do
     * )
       printf >&2 "WARNING! Unknown argument '%s'\n" "$1"
       export xadfcommit_bad_states=1
-      break
+      exit 3
       ;;
   esac
 done
@@ -98,7 +109,7 @@ done
 if test $xadfcommit_bad_states -eq 0
 then
   xadf_check_ver_config
-  xadf_check_modified
+  xadf_check_path
   xadf_commit_append_version
   xadf_safe_commit
 fi
