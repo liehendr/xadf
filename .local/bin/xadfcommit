@@ -17,17 +17,22 @@ EOF
 fi
 }
 
-# Check if xadf is modified
-# If it is, add to variable
+# Check if $git_xadf_path is provided
+# Otherwise check if xadf is modified
+# If it is, add to $git_xadf_path
 xadf_check_path(){
-unset xadf_is_modified git_xadf_path
-xadf_is_modified=$(git status -s|grep xadf$|sed 's_...__')
-if test -z "$xadf_is_modified"
+echo "${git_xadf_path}" | grep 'xadf$'
+if test $? -gt 0
 then
-  printf >&2 "xadf is not modified\n"
-  export xadfcommit_bad_states=1
-else
-  export git_xadf_path=$(realpath ${xadf_is_modified})
+  unset xadf_is_modified git_xadf_path
+  xadf_is_modified=$(git status -s|grep xadf$|sed 's_...__')
+  if test -z "$xadf_is_modified"
+  then
+    printf >&2 "xadf is not modified\n"
+    export xadfcommit_bad_states=1
+  else
+    export git_xadf_path=$(realpath ${xadf_is_modified})
+  fi
 fi
 }
 
