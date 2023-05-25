@@ -8,6 +8,8 @@ xadf_check_ver_config(){
 if test ! -f ~/.config/xadf/xadf_devel.cfg
 then
   export xadfcommit_bad_states=1
+  printf >&2 "WARNING! No config file!\n"
+  exit 1
 else
   . ~/.config/xadf/xadf_devel.cfg
   cat << EOF > ~/.config/xadf/xadf_devel.cfg
@@ -21,7 +23,7 @@ fi
 # Otherwise check if xadf is modified
 # If it is, add to $git_xadf_path
 xadf_check_path(){
-echo "${git_xadf_path}" | grep 'xadf$'
+echo "${git_xadf_path}" | grep -q 'xadf$'
 if test $? -gt 0
 then
   unset xadf_is_modified git_xadf_path
@@ -30,6 +32,7 @@ then
   then
     printf >&2 "xadf is not modified\n"
     export xadfcommit_bad_states=1
+    exit 2
   else
     export git_xadf_path=$(realpath ${xadf_is_modified})
   fi
@@ -69,7 +72,7 @@ fi
 # Changing to executable script instead of just a function
 # xadfcommit(){
 # Safety feature, if 1 then abort at execution
-export xadfcommit_bad_states=0
+xadfcommit_bad_states=0
 
 # Parse arguments and call functions
 # If -L/--label is given, parse label
@@ -83,7 +86,7 @@ do
       then
         printf >&2 "WARNING! No label given\n"
         export xadfcommit_bad_states=1
-        exit 1
+        exit 3
       else
         xadf_version_label="$2"
         shift 2
@@ -94,7 +97,7 @@ do
       then
         printf >&2 "WARNING! No path to xadf given\n"
         export xadfcommit_bad_states=1
-        exit 2
+        exit 4
       else
         export git_xadf_path="$(realpath $2)"
       fi
@@ -105,7 +108,7 @@ do
     * )
       printf >&2 "WARNING! Unknown argument '%s'\n" "$1"
       export xadfcommit_bad_states=1
-      exit 3
+      exit 5
       ;;
   esac
 done
