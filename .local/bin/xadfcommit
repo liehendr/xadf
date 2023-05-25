@@ -139,7 +139,7 @@ do
       shift 2
       ;;
     -n | --no-git )
-      export xadfcommit_nogit=0
+      export xadfcommit_nogit=1
       shift
       ;;
     "" )
