@@ -136,9 +136,11 @@ do
       else
         export git_xadf_path="$(realpath $2)"
       fi
+      shift 2
       ;;
     -n | --no-git )
       export xadfcommit_nogit=0
+      shift
       ;;
     "" )
       break
