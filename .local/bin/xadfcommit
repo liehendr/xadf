@@ -157,7 +157,8 @@ done
 if test $xadfcommit_bad_states -eq 0
 then
   xadf_check_path
-  xadf_check_ver_config
+  # xadf_check_ver_config
+  xadf_version_parser
   xadf_commit_append_version
   xadf_safe_commit
 fi
