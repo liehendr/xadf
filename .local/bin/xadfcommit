@@ -1,0 +1,146 @@
+#!/bin/bash
+
+# Parses version from xadf itself
+xadf_version_parser(){
+
+local version parsed_xadf_version ifs
+local major_ver minor_ver
+
+# Get from xadf file itself
+source <(grep '^version=' ${git_xadf_path})
+
+# Remove leading 'v', and any label (after '+')
+parsed_xadf_version=$(echo $version|sed 's/^.//;s/+.*$//')
+
+# Split the parsed version as a dot delimited array
+ifs="$IFS"
+IFS='.'
+for val in ${parsed_xadf_version}
+do # set them into an array
+  xadf_version_array+=($val)
+done
+IFS="$ifs"
+
+major_ver=${xadf_version_array[0]}
+minor_ver=${xadf_version_array[1]}
+
+export xadf_major_ver="v${major_ver}"
+export xadf_minor_ver=$((++minor_ver))
+}
+
+# Check if $git_xadf_path is provided
+# Otherwise check if xadf is modified
+# If it is, add to $git_xadf_path
+xadf_check_path(){
+echo "${git_xadf_path}" | grep -q 'xadf$'
+if test $? -gt 0
+then
+  unset xadf_is_modified git_xadf_path
+  xadf_is_modified=$(git status -s|grep xadf$|sed 's_...__')
+  if test -z "$xadf_is_modified"
+  then
+    printf >&2 "xadf is not modified\n"
+    export xadfcommit_bad_states=1
+    exit 2
+  else
+    export git_xadf_path=$(realpath ${xadf_is_modified})
+  fi
+fi
+}
+
+xadf_commit_append_version(){
+# Check if label is given
+# If yes, do long form
+# If none, do short form
+xadf_version_only="${xadf_major_ver}\.${xadf_minor_ver}\.$(date +%Y%m%d\.%H%M)"
+
+if test -z "$xadf_version_label"
+then
+  xadf_version_full="${xadf_version_only}"
+else
+  xadf_version_full="${xadf_version_only}+${xadf_version_label}"
+fi
+
+unset xadf_version_label
+
+sed -i -e 's#^version=.*$#version=DUMMYVER#' \
+    -e "s#DUMMYVER#${xadf_version_full}#" "${git_xadf_path}"
+}
+
+xadf_safe_commit(){
+${git_xadf_path} -v
+if test $? -gt 0
+then
+  printf >&2 "WARNING! Malformed executable '%s'\n" "${git_xadf_path}"
+else
+  if test ${xadfcommit_nogit} -eq 0 ; then
+    git commit ${git_xadf_path}
+  fi
+fi
+}
+
+# Changing to executable script instead of just a function
+# xadfcommit(){
+
+# Safety feature, if 1 then abort at execution
+xadfcommit_bad_states=0
+
+# Safety feature, if 1 then only test and modify, but
+# do not do git operations
+xadfcommit_nogit=0
+
+# Parse arguments and call functions
+# If -L/--label is given, parse label
+# If -p/--path is given, use path
+# if -n/--no-git is given, do not perform git operations
+
+while :;
+do
+  case $1 in
+    -L | --label )
+      if test -z "$2"
+      then
+        printf >&2 "WARNING! No label given\n"
+        export xadfcommit_bad_states=1
+        exit 3
+      else
+        xadf_version_label="$2"
+        shift 2
+      fi
+      ;;
+    -p | --path )
+      if test -z "$2"
+      then
+        printf >&2 "WARNING! No path to xadf given\n"
+        export xadfcommit_bad_states=1
+        exit 4
+      else
+        export git_xadf_path="$(realpath $2)"
+      fi
+      shift 2
+      ;;
+    -n | --no-git )
+      export xadfcommit_nogit=1
+      shift
+      ;;
+    "" )
+      break
+      ;;
+    * )
+      printf >&2 "WARNING! Unknown argument '%s'\n" "$1"
+      export xadfcommit_bad_states=1
+      exit 5
+      ;;
+  esac
+done
+
+# Protective measures, to only run if state is good
+if test $xadfcommit_bad_states -eq 0
+then
+  xadf_check_path
+  xadf_version_parser
+  xadf_commit_append_version
+  xadf_safe_commit
+fi
+# }
+
