@@ -1,0 +1,36 @@
+# Inspired by .profilerc found in: https://github.com/thiagowfx/.dotfiles/
+
+# Consume paths as arguments, then add them to $PATH if it isn't already
+# Usage: pathadd "$HOME/.local/bin" "$HOME/bin"
+pathadd(){
+    local p
+    for p in "$@"; do
+        test -z "$(echo $PATH|grep "$p")" && PATH="$p:$PATH"
+    done
+}
+
+# Consume paths as arguments, then source them or all files within them
+# Usage: src "$HOME/.bashrc.d" "$xadfmods/file.sh"
+src(){
+    local f
+    for f in "$@"; do
+        # Extract full path as zsh dot does not like path without leading ./
+        local p="$(realpath "$f")"
+        # If path is a directory, source files within
+        test -d "$p" && src "$p"/*
+        # If path is a file, source the file
+        test -f "$p" && . "$p"
+    done
+}
+
+# Load xadf modules in $xadfmods
+# Usage: xadfmod stack.sh tai.sh promptstyler.sh
+xadfmod(){
+    # If $xadfmods is defined, call src()
+    if test -n "$xadfmods"; then
+        local m
+        for m in "$@"; do
+            src "$xadfmods/$m"
+        done
+    fi
+}

@@ -46,6 +46,7 @@ b 'lto beta'
 g 'lto gamma'
 t 'lto trash'
 x 'stack ls x'
+xl 'stack ls xl'
 )
 
 ilaset(){
