@@ -4,7 +4,7 @@ REPOUP_SEAT="$HOME/.config/repoup"
 REPOUP_DEFAULT_DIRECTORY="$PWD"
 REPOUP_DEFAULT_PREFIX="etc"
 REPOUP_DRYRUN=0
-REPOUP_VERSION="0.2"
+REPOUP_VERSION="0.3"
 REPOUP_BASENAME="$(basename $0)"
 
 # Make required directories if nonexistent
@@ -41,7 +41,7 @@ repos=( "$DIR"/* )
 # Then get inside and pull if it is a git repo
 for repo in ${repos[@]}
 do
-  if [ -d "$repo/.git" ]
+  if [ -d "$repo/.git" ] || [ -f "$repo/.git" ]
   then
     cd $repo
     # Timestamping
