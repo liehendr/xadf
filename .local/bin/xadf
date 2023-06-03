@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.23.20230527.2332+help_for_double_dash
+version=v1.23.20230604.0126+zshrc_support
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -89,8 +89,15 @@ xadf_touch_shell_rc(){
 #    performs grep search
 
 local shellrc
-test -n "$BASH_VERSION" && shellrc='.bashrc'
-test -n "$ZSH_VERSION" && shellrc='.zshrc'
+# If $shell_rcfile is set, then use it instead
+# Otherwise test for shell type
+if -z "$shell_rcfile"
+then
+	shellrc="$shell_rcfile"
+else
+	test -n "$BASH_VERSION" && shellrc='.bashrc'
+	test -n "$ZSH_VERSION" && shellrc='.zshrc'
+fi
 
 printf "===> [xadf]: Ensures xadfrc is sourced in ~/%s...\n" "$shellrc"
 sed 's/#.*$//' ~/$shellrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
@@ -430,6 +437,10 @@ Normal usage options:
   --build-recipe/-r       Produces \$xadfconfig/recipe.txt by copying from template.
   --build-xadfrc/-x       Produces \$xadfconfig/xadfrc by constructing from template.
   --touch-shell-rc/-t     Modify .bashrc to source xadfrc if it isn't already.
+  --touch SHELLRC         Modify file SHELLRC to source xadfrc if it isn't already.
+                          Currently supported SHELLRC: ~/.bashrc and ~/.zshrc
+  --touch-bashrc          Alias to: --touch \$HOME/.bashrc
+  --touch-zshrc           Alias to: --touch \$HOME/.zshrc
   --init-bare             Initialize a bare git repository at \$HOME.
                           Specify custom git directory with '--seat DIR' option.
   --custom-seat/-c DIR    Sets xadf git directory to DIR, then assumes the following commands are git commands.
@@ -546,6 +557,27 @@ while :; do
 			;;
 		-t | --touch-shell-rc )
 			export touch_shell_rc=1
+			shift
+			;;
+		--touch )
+			if test -z "$2"
+			then
+				printf >&2 "Error: No SHELLRC file is set!\nUsage: xadf --touch SHELLRC\n\n"
+				exit 19
+			else
+				export touch_shell_rc=1
+				export shell_rcfile="$(realpath $2)"
+				shift 2
+			fi
+			;;
+		--touch-bashrc )
+			export touch_shell_rc=1
+			export shell_rcfile="$(realpath $HOME/.bashrc)"
+			shift
+			;;
+		--touch-zshrc )
+			export touch_shell_rc=1
+			export shell_rcfile="$(realpath $HOME/.zshrc)"
 			shift
 			;;
 		--init-bare )
