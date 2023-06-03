@@ -87,14 +87,19 @@ xadf_touch_shell_rc(){
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "===> [xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
-sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
-test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
+
+local shellrc
+test -n "$BASH_VERSION" && shellrc='.bashrc'
+test -n "$ZSH_VERSION" && shellrc='.zshrc'
+
+printf "===> [xadf]: Ensures xadfrc is sourced in ~/%s...\n" "$shellrc"
+sed 's/#.*$//' ~/$shellrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
+test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/$shellrc
 if test $? -gt 0
 then
 	printf "===> [xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "===> [xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
+	printf "===> [xadf]: xadfrc is appended to ~/%s...DONE\n" "$shellrc"
 fi
 }
 
