@@ -19,10 +19,7 @@ test ! -f "$xadfconfig/recipe.txt" && xadf --build-recipe
 
 # Only run this block in a bash shell
 if test -n "$BASH_VERSION" ; then
-  # Check whether bash_aliases and bash_functions in $xadfmods exist
-  test ! -f "$xadfmods/bash_aliases"   && cp "$xadfmods/templates/bash_aliases"   "$xadfmods/bash_aliases"
-  test ! -f "$xadfmods/bash_functions" && cp "$xadfmods/templates/bash_functions" "$xadfmods/bash_functions"
-  # Source recipe.txt
-  . $xadfconfig/recipe.txt
+  # Sources $xadfconfig/bashrc if exist, otherwise sources $xadfmods/bashrc
+  test -f "$xadfconfig/bashrc" && source "$xadfconfig/bashrc" || source "$xadfmods/bashrc"
 fi
 
