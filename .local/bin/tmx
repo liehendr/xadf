@@ -43,12 +43,12 @@ else
         echo "Launching copy of base session $base_session ..."
         # Session is is date and time to prevent conflict
         session_id=`date +%Y%m%d%H%M%S`
-        # Create a new session (without attaching it) and link to base session 
+        # Create a new session (without attaching it) and link to base session
         # to share windows
         tmux new-session -d -t $base_session -s $session_id
-        # Attach to the new session
-        tmux attach-session -t $session_id
-        # When we detach from it, kill the session
-        tmux kill-session -t $session_id
+        # From https://wiki.archlinux.org/title/Tmux
+        [[ "$2" == "1" ]] && tmux new-window # Create a new window in that session
+        # Attach to the new session & kill it once orphaned
+        tmux attach-session -t $session_id \; set-option destroy-unattached
     fi
 fi 
