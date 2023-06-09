@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#
 # Tmux launcher
 #
 # See:
@@ -41,8 +40,9 @@ else
         done
 
         echo "Launching copy of base session $base_session ..."
-        # Session is is date and time to prevent conflict
-        session_id=`date +%Y%m%d%H%M%S`
+        # Session id is hash of date and time to prevent conflict
+        timehash="$(date +%s|md5sum)"
+        session_id="${timehash:0:4}"
         # Create a new session (without attaching it) and link to base session
         # to share windows
         tmux new-session -d -t $base_session -s $session_id
@@ -51,4 +51,4 @@ else
         # Attach to the new session & kill it once orphaned
         tmux attach-session -t $session_id \; set-option destroy-unattached
     fi
-fi 
+fi
