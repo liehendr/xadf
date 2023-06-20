@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.25.20230621.0122+fixes_bug_in_touch_shellrc
+version=v1.26.20230621.0126+fixes_bug_in_touch_shellrc
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -100,8 +100,8 @@ else
 fi
 
 printf "===> [xadf]: Ensures xadfrc is sourced in %s...\n" "$shellrc"
-sed 's/#.*$//' "$shellrc"|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
-test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/$shellrc
+sed 's/#.*$//' "$shellrc"|grep -q "^. ~/\.config/xadf/xadfrc$"
+test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> "$shellrc"
 if test $? -gt 0
 then
 	printf "===> [xadf]: xadfrc is already sourced...OK\n"
