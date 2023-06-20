@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.24.20230621.0113+fixes_touch_shellrc_bug
+version=v1.25.20230621.0122+fixes_bug_in_touch_shellrc
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -91,7 +91,7 @@ xadf_touch_shell_rc(){
 local shellrc
 # If $shell_rcfile is set, then use it instead
 # Otherwise test for shell type
-if test -z "$shell_rcfile"
+if test ! -z "$shell_rcfile"
 then
 	shellrc="$shell_rcfile"
 else
@@ -99,14 +99,14 @@ else
 	test -n "$ZSH_VERSION" && shellrc='.zshrc'
 fi
 
-printf "===> [xadf]: Ensures xadfrc is sourced in ~/%s...\n" "$shellrc"
-sed 's/#.*$//' ~/$shellrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
+printf "===> [xadf]: Ensures xadfrc is sourced in %s...\n" "$shellrc"
+sed 's/#.*$//' "$shellrc"|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
 test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/$shellrc
 if test $? -gt 0
 then
 	printf "===> [xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "===> [xadf]: xadfrc is appended to ~/%s...DONE\n" "$shellrc"
+	printf "===> [xadf]: xadfrc is appended to %s...DONE\n" "$shellrc"
 fi
 }
 
