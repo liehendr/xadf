@@ -31,5 +31,5 @@
 test ! -f "$xadfmods/bash_aliases"   && cp "$xadfmods/templates/bash_aliases"   "$xadfmods/bash_aliases"
 test ! -f "$xadfmods/bash_functions" && cp "$xadfmods/templates/bash_functions" "$xadfmods/bash_functions"
 
-# Source recipe.txt
-. $xadfconfig/recipe.txt
+# Sources ~/.bashrc.d if exist
+test -d "$HOME/.bashrc.d" && src "$HOME/.bashrc.d"
