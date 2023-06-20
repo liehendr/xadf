@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.23.20230604.0126+zshrc_support
+version=v1.24.20230621.0113+fixes_touch_shellrc_bug
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -91,7 +91,7 @@ xadf_touch_shell_rc(){
 local shellrc
 # If $shell_rcfile is set, then use it instead
 # Otherwise test for shell type
-if -z "$shell_rcfile"
+if test -z "$shell_rcfile"
 then
 	shellrc="$shell_rcfile"
 else
