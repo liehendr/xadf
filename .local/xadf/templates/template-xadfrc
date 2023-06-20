@@ -11,11 +11,14 @@ declare -x xadfconfig="$HOME/.config/xadf"
 declare -x xadfmods="$HOME/.local/xadf"
 declare -x xadfdir="XADFDIR"
 
+# Load base functions
+. $xadfmods/initrc
+
 # Check whether recipe.txt exists, if it doesn't, generate one
 test ! -f "$xadfconfig/recipe.txt" && xadf --build-recipe
 
-# Load base functions
-. $xadfmods/initrc
+# Load modules
+xadfmod "$xadfconfig/recipe.txt"
 
 # Only run this block in a bash shell
 if test -n "$BASH_VERSION" ; then
