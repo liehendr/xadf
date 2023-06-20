@@ -24,13 +24,36 @@ src(){
 }
 
 # Load xadf modules in $xadfmods
-# Usage: xadfmod stack.sh tai.sh promptstyler.sh
-xadfmod(){
-    # If $xadfmods is defined, call src()
+# Usage: xadfmod_load stack.sh tai.sh promptstyler.sh
+xadfmod_load(){
+    # If $xadfmods is defined, call src() under the following conditions
     if test -n "$xadfmods"; then
         local m
         for m in "$@"; do
-            src "$xadfmods/$m"
+            # Test if they exist in common/ first, then source them if there is
+            if test -f "$xadfmods/common/$m" -o -d "$xadfmods/common/$m" ; then
+                src "$xadfmods/common/$m"
+            else
+                # If in bash, source from bash/, and if in zsh, source from zsh/
+                test -n "$BASH_VERSION" && src "$xadfmods/bash/$m"
+                test -n "$ZSH_VERSION" && src "$xadfmods/zsh/$m"
+            fi
         done
     fi
+}
+
+# Mod loader inspired by
+# https://stackoverflow.com/a/10929511/12571203
+xadfmod_read(){
+local file="$(realpath $1)"
+local modname
+while IFS= read -r modname; do
+    # Only load to the array if the line is not empty
+    test -n "$modname" && xadfmod_list+=("$modname")
+done < <(sed 's/#.*$//;s/ .*$//' "$file") # strips all comments and trailing spaces
+}
+
+xadfmod(){
+xadfmod_read "$xadfconfig/recipe.txt"
+xadfmod_load "${xadfmod_list[@]}"
 }
