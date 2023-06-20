@@ -17,8 +17,8 @@ declare -x xadfdir="XADFDIR"
 # Check whether recipe.txt exists, if it doesn't, generate one
 test ! -f "$xadfconfig/recipe.txt" && xadf --build-recipe
 
-# Load modules
-xadfmod "$xadfconfig/recipe.txt"
+# Load modules (reloads if already present)
+unset xadfmod_list && xadfmod "$xadfconfig/recipe.txt"
 
 # Only run this block in a bash shell
 if test -n "$BASH_VERSION" ; then
