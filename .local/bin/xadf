@@ -39,11 +39,11 @@
 ###############################################################################
 
 # Define state variables
-version=v1.23.20230527.2332+help_for_double_dash
+version=v1.23.20230604.0126+zshrc_support
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
-touch_bashrc=0
+touch_shell_rc=0
 init_bare=0
 install_mode=0
 install_seat="$HOME/xadf"
@@ -82,19 +82,31 @@ else
 fi
 }
 
-xadf_touch_bashrc(){
+xadf_touch_shell_rc(){
 # 9. If .bashrc does not contain . ~/.config/xadf/xadfrc, appends that
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "===> [xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
-sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
-test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
+
+local shellrc
+# If $shell_rcfile is set, then use it instead
+# Otherwise test for shell type
+if -z "$shell_rcfile"
+then
+	shellrc="$shell_rcfile"
+else
+	test -n "$BASH_VERSION" && shellrc='.bashrc'
+	test -n "$ZSH_VERSION" && shellrc='.zshrc'
+fi
+
+printf "===> [xadf]: Ensures xadfrc is sourced in ~/%s...\n" "$shellrc"
+sed 's/#.*$//' ~/$shellrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
+test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/$shellrc
 if test $? -gt 0
 then
 	printf "===> [xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "===> [xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
+	printf "===> [xadf]: xadfrc is appended to ~/%s...DONE\n" "$shellrc"
 fi
 }
 
@@ -117,7 +129,7 @@ xadf_build_xadfrc
 printf "===> [xadf]: Ensures recipe.txt is present\n"
 test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
 printf "===> [xadf]: Touching ~/.bashrc\n"
-xadf_touch_bashrc
+xadf_touch_shell_rc
 printf "===> [xadf]: You may want to source your ~/.bashrc\n"
 printf "===> [xadf]: Afterwards you may want to hide untracked files with:\n"
 printf "===> [xadf]:   xadf config status.showUntrackedFiles no\n"
@@ -324,7 +336,7 @@ test ! -f "$HOME/.bashrc" && cp /etc/skel/.bashrc ~/.bashrc
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-xadf_touch_bashrc && export touch_bashrc=0
+xadf_touch_shell_rc && export touch_shell_rc=0
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
 test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
@@ -424,7 +436,11 @@ Normal usage options:
                           PATH is relative to repository root.
   --build-recipe/-r       Produces \$xadfconfig/recipe.txt by copying from template.
   --build-xadfrc/-x       Produces \$xadfconfig/xadfrc by constructing from template.
-  --touch-bashrc/-t       Modify .bashrc to source xadfrc if it isn't already.
+  --touch-shell-rc/-t     Modify .bashrc or .zshrc to source xadfrc if it isn't already.
+  --touch SHELLRC         Modify file SHELLRC to source xadfrc if it isn't already.
+                          Currently supported SHELLRC: ~/.bashrc and ~/.zshrc
+  --touch-bashrc          Alias to: --touch \$HOME/.bashrc
+  --touch-zshrc           Alias to: --touch \$HOME/.zshrc
   --init-bare             Initialize a bare git repository at \$HOME.
                           Specify custom git directory with '--seat DIR' option.
   --custom-seat/-c DIR    Sets xadf git directory to DIR, then assumes the following commands are git commands.
@@ -539,8 +555,29 @@ while :; do
 			export build_xadfrc=1
 			shift
 			;;
-		-t | --touch-bashrc )
-			export touch_bashrc=1
+		-t | --touch-shell-rc )
+			export touch_shell_rc=1
+			shift
+			;;
+		--touch )
+			if test -z "$2"
+			then
+				printf >&2 "Error: No SHELLRC file is set!\nUsage: xadf --touch SHELLRC\n\n"
+				exit 19
+			else
+				export touch_shell_rc=1
+				export shell_rcfile="$(realpath $2)"
+				shift 2
+			fi
+			;;
+		--touch-bashrc )
+			export touch_shell_rc=1
+			export shell_rcfile="$(realpath $HOME/.bashrc)"
+			shift
+			;;
+		--touch-zshrc )
+			export touch_shell_rc=1
+			export shell_rcfile="$(realpath $HOME/.zshrc)"
 			shift
 			;;
 		--init-bare )
@@ -639,9 +676,9 @@ then
 	xadf_build_xadfrc
 fi
 
-if test $touch_bashrc -eq 1
+if test $touch_shell_rc -eq 1
 then
-	xadf_touch_bashrc
+	xadf_touch_shell_rc
 fi
 
 if test $vanilla_xadf -eq 1 || test $set_origin_url -eq 1

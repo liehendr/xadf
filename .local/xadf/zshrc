@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/zsh
 ###############################################################################
 #
-#   xadf - bashrc
+#   xadf - zshrc
 #   Copyright (C) 2023  Hendrik Lie
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -24,12 +24,12 @@
 #
 # SUMMARY
 # Loaded from $xadfconfig/xadfrc. Should contain a sane default configuration.
-# The basic skeleton is derived from the original code block for custom bash
+# The basic skeleton is derived from the original code block for custom zsh
 # function and alias definitions.
 
-# Check whether bash_aliases and bash_functions in $xadfmods exist
-test ! -f "$xadfmods/bash_aliases"   && cp "$xadfmods/templates/bash_aliases"   "$xadfmods/bash_aliases"
-test ! -f "$xadfmods/bash_functions" && cp "$xadfmods/templates/bash_functions" "$xadfmods/bash_functions"
+# Check whether zsh_aliases and zsh_functions in $xadfmods exist
+test ! -f "$xadfmods/zsh_aliases"   && cp "$xadfmods/templates/zsh_aliases"   "$xadfmods/zsh_aliases"
+test ! -f "$xadfmods/zsh_functions" && cp "$xadfmods/templates/zsh_functions" "$xadfmods/zsh_functions"
 
-# Sources ~/.bashrc.d if exist
-test -d "$HOME/.bashrc.d" && src "$HOME/.bashrc.d"
+# Sources ~/.zshrc.d if exist
+test -d "$HOME/.zshrc.d" && src "$HOME/.zshrc.d"
