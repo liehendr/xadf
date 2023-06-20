@@ -26,3 +26,9 @@ if test -n "$BASH_VERSION" ; then
   test -f "$xadfconfig/bashrc" && source "$xadfconfig/bashrc" || source "$xadfmods/bashrc"
 fi
 
+# Only run this block in a zsh shell
+if test -n "$ZSH_VERSION" ; then
+  # Sources $xadfconfig/zshrc if exist, otherwise sources $xadfmods/zshrc
+  test -f "$xadfconfig/zshrc" && source "$xadfconfig/zshrc" || source "$xadfmods/zshrc"
+fi
+
