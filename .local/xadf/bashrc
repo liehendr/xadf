@@ -1,0 +1,35 @@
+#!/bin/bash
+###############################################################################
+#
+#   xadf - bashrc
+#   Copyright (C) 2023  Hendrik Lie
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#   Author: Hendrik Lie
+#   Email : <hendriklie@gmail.com>
+#
+###############################################################################
+#
+# SUMMARY
+# Loaded from $xadfconfig/xadfrc. Should contain a sane default configuration.
+# The basic skeleton is derived from the original code block for custom bash
+# function and alias definitions.
+
+# Check whether bash_aliases and bash_functions in $xadfmods exist
+test ! -f "$xadfmods/bash_aliases"   && cp "$xadfmods/templates/bash_aliases"   "$xadfmods/bash_aliases"
+test ! -f "$xadfmods/bash_functions" && cp "$xadfmods/templates/bash_functions" "$xadfmods/bash_functions"
+
+# Sources ~/.bashrc.d if exist
+test -d "$HOME/.bashrc.d" && src "$HOME/.bashrc.d"
