@@ -53,7 +53,24 @@ while IFS= read -r modname; do
 done < <(sed 's/#.*$//;s/ .*$//' "$file") # strips all comments and trailing spaces
 }
 
+# The one responsible for both reading and loading modules
+# Usage: xadfmod ~/.config/recipe.txt ~/.config/office_modules.txt
 xadfmod(){
-xadfmod_read "$xadfconfig/recipe.txt"
+
+# Shift through each arguments, passing to xadfmod_read() until no arguments left
+while :
+do
+  case $1 in
+    "" )
+      break
+    ;;
+    * )
+      xadfmod_read "$1"
+      shift
+    ;;
+  esac
+done
+
+# Then load the collected modules in xadfmod_list
 xadfmod_load "${xadfmod_list[@]}"
 }
