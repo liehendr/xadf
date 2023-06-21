@@ -39,7 +39,7 @@
 ###############################################################################
 
 # Define state variables
-version=v1.26.20230621.0126+fixes_bug_in_touch_shellrc
+version=v1.27.20230621.1100+reorganize_minimal_required_files
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
@@ -59,7 +59,7 @@ test ! -d ~/.local/xadf && mkdir -p ~/.local/xadf
 xadf_build_recipe(){
 # builds recipe
 printf "===> [xadf]: Generate recipe...\n"
-cp ~/.local/xadf/templates/default-recipe.txt ~/.config/xadf/recipe.txt
+cp ~/.local/share/xadf/recipe.txt ~/.config/xadf/recipe.txt
 if test $? -gt 0
 then
 	printf "===> [xadf]: FAIL\n"
@@ -72,7 +72,7 @@ fi
 xadf_build_xadfrc(){
 # builds xadfrc
 printf "===> [xadf]: Generate xadfrc...\n"
-sed "s#XADFDIR#$install_seat#;s#$HOME#\$HOME#" ~/.local/xadf/templates/template-xadfrc > ~/.config/xadf/xadfrc
+sed "s#XADFDIR#$install_seat#;s#$HOME#\$HOME#" ~/.local/share/xadf/xadfrc > ~/.config/xadf/xadfrc
 if test $? -gt 0
 then
 	printf "===> [xadf]: FAIL\n"
@@ -137,10 +137,9 @@ printf "===> [xadf]:   xadf config status.showUntrackedFiles no\n"
 
 xadf_minimal_test(){
 # Checkpoint, if either one of them does not exist, it is a failed download.
-if test ! -f ~/.local/xadf/templates/bash_aliases || \
-   test ! -f ~/.local/xadf/templates/bash_functions || \
-   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
-   test ! -f ~/.local/xadf/templates/template-xadfrc
+if test ! -f ~/.local/share/xadf/recipe.txt || \
+   test ! -f ~/.local/share/xadf/xadfrc || \
+   test ! -f ~/.local/xadf/initrc
 then
 	printf "===> [xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
 	exit 17
@@ -159,7 +158,7 @@ printf "===> [xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
 xadf_curl_download(){
 # A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
 # is specified with --seat
-curl -o ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
+curl -so ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/bin/xadf
 if test $? -gt 0
 then
 	printf "===> [xadf]: WARNING! File not found! Aborting...\n" >&2
@@ -170,10 +169,10 @@ else
 	chmod +x ~/.local/bin/xadf
 	# Download supporting files required to create basic configuration
 	printf "===> [xadf]: Download required files...\n"
-	for file in bash_aliases bash_functions default-recipe.txt template-xadfrc
+	for file in share/xadf/recipe.txt share/xadf/xadfrc xadf/initrc
 	do
-		curl -o ~/.local/xadf/templates/${file} \
-		https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/${file}
+		curl -so ~/.local/"${file}" \
+		https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/"${file}"
 	done
 
 	# Checkpoint, if either one of them does not exist, it is a failed download.
@@ -184,7 +183,7 @@ fi
 xadf_wget_download(){
 # A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
 # is specified with --seat
-wget -O ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
+wget -O ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/bin/xadf
 if test $? -gt 0
 then
 	printf "===> [xadf]: WARNING! File not found! Aborting...\n" >&2
@@ -195,10 +194,10 @@ else
 	chmod +x ~/.local/bin/xadf
 	# Download supporting files required to create basic configuration
 	printf "===> [xadf]: Download required files...\n"
-	for file in bash_aliases bash_functions default-recipe.txt template-xadfrc
+	for file in share/xadf/recipe.txt share/xadf/xadfrc xadf/initrc
 	do
-		wget -O ~/.local/xadf/templates/${file} \
-		https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/${file}
+		wget -O ~/.local/"${file}" \
+		https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/"${file}"
 	done
 
 	# Checkpoint, if either one of them does not exist, it is a failed download.
