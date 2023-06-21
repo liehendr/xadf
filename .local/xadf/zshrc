@@ -27,9 +27,5 @@
 # The basic skeleton is derived from the original code block for custom zsh
 # function and alias definitions.
 
-# Check whether zsh_aliases and zsh_functions in $xadfmods exist
-test ! -f "$xadfmods/zsh_aliases"   && cp "$xadfmods/templates/zsh_aliases"   "$xadfmods/zsh_aliases"
-test ! -f "$xadfmods/zsh_functions" && cp "$xadfmods/templates/zsh_functions" "$xadfmods/zsh_functions"
-
 # Sources ~/.zshrc.d if exist
 test -d "$HOME/.zshrc.d" && src "$HOME/.zshrc.d"
