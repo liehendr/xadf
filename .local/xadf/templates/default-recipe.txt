@@ -1,26 +1,30 @@
 #!/bin/bash
-# A part of xadf (see xadf -v)
-# Sources which xadf modules to load
+# A part of xadf
+#   See: https://gitlab.com/heno72/xadf/
+# Determines which xadf modules to load
+# Specifications:
+# 1. Any comments will be ignored
+# 2. Any lines that begin with whitespace is ignored
+# 3. Module names should not contain spaces
 
 ## Standard modules
-# source $xadfmods/bash_aliases
-# source $xadfmods/bash_functions
+# xenobase.sh
 
-## Extra modules
-# source $xadfmods/stack.sh
-# source $xadfmods/twitter.sh
-# source $xadfmods/verinsius.sh
-# source $xadfmods/fta.sh
-# source $xadfmods/ns.sh
-
-# Using latest generation xadfmod:
+## Or alternatively you can comment xenobase.sh
+## and pick from the list below selectively
 aliases.sh
 errors.sh
 bc.sh
-errors.sh
 igdl_rmfrlist.sh
 qrquick.sh
 ssl_encrypt.sh
 mplay.sh
 notes.sh
 uasync.sh
+
+## Extra modules
+# stack.sh
+# twitter.sh
+# verinsius.sh
+# fta.sh
+# ns.sh

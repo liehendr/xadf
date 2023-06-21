@@ -8,7 +8,6 @@
 
 . $xadfmods/common/errors.sh
 . $xadfmods/common/bc.sh
-. $xadfmods/common/errors.sh
 . $xadfmods/common/igdl_rmfrlist.sh
 . $xadfmods/common/qrquick.sh
 . $xadfmods/common/ssl_encrypt.sh
