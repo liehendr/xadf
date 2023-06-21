@@ -6,21 +6,32 @@
 # 1. Any comments will be ignored
 # 2. Any lines that begin with whitespace is ignored
 # 3. Module names should not contain spaces
+# 4. If you install with minimal install, it is likely
+#    that the modules listed below are not present.
+#    You may need to make your custom modules to be
+#    loaded and store them in:
+#      $xadfmods/
+#        common/ # for modules valid on bash and zsh
+#        bash/   # for modules valid on bash
+#        zsh/    # for modules valid on zsh
+#    Then add the basename only (not the full path)
+#    below (eg: file in $xadfmods/common/alias.sh is
+#    listed below only as: alias.sh)
 
 ## Standard modules
 # xenobase.sh
 
 ## Or alternatively you can comment xenobase.sh
 ## and pick from the list below selectively
-aliases.sh
-errors.sh
-bc.sh
-igdl_rmfrlist.sh
-qrquick.sh
-ssl_encrypt.sh
-mplay.sh
-notes.sh
-uasync.sh
+# aliases.sh
+# errors.sh
+# bc.sh
+# igdl_rmfrlist.sh
+# qrquick.sh
+# ssl_encrypt.sh
+# mplay.sh
+# notes.sh
+# uasync.sh
 
 ## Extra modules
 # stack.sh
