@@ -39,11 +39,11 @@
 ###############################################################################
 
 # Define state variables
-version=v1.23.20230527.2332+help_for_double_dash
+version=v1.27.20230621.1100+reorganize_minimal_required_files
 vanilla_xadf=0
 build_recipe=0
 build_xadfrc=0
-touch_bashrc=0
+touch_shell_rc=0
 init_bare=0
 install_mode=0
 install_seat="$HOME/xadf"
@@ -59,7 +59,7 @@ test ! -d ~/.local/xadf && mkdir -p ~/.local/xadf
 xadf_build_recipe(){
 # builds recipe
 printf "===> [xadf]: Generate recipe...\n"
-cp ~/.local/xadf/templates/default-recipe.txt ~/.config/xadf/recipe.txt
+cp ~/.local/share/xadf/recipe.txt ~/.config/xadf/recipe.txt
 if test $? -gt 0
 then
 	printf "===> [xadf]: FAIL\n"
@@ -72,7 +72,7 @@ fi
 xadf_build_xadfrc(){
 # builds xadfrc
 printf "===> [xadf]: Generate xadfrc...\n"
-sed "s#XADFDIR#$install_seat#;s#$HOME#\$HOME#" ~/.local/xadf/templates/template-xadfrc > ~/.config/xadf/xadfrc
+sed "s#XADFDIR#$install_seat#;s#$HOME#\$HOME#" ~/.local/share/xadf/xadfrc > ~/.config/xadf/xadfrc
 if test $? -gt 0
 then
 	printf "===> [xadf]: FAIL\n"
@@ -82,19 +82,31 @@ else
 fi
 }
 
-xadf_touch_bashrc(){
+xadf_touch_shell_rc(){
 # 9. If .bashrc does not contain . ~/.config/xadf/xadfrc, appends that
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-printf "===> [xadf]: Ensures xadfrc is sourced in ~/.bashrc...\n"
-sed 's/#.*$//' ~/.bashrc|grep "^. ~/\.config/xadf/xadfrc$" > /dev/null
-test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> ~/.bashrc
+
+local shellrc
+# If $shell_rcfile is set, then use it instead
+# Otherwise test for shell type
+if test ! -z "$shell_rcfile"
+then
+	shellrc="$shell_rcfile"
+else
+	test -n "$BASH_VERSION" && shellrc='.bashrc'
+	test -n "$ZSH_VERSION" && shellrc='.zshrc'
+fi
+
+printf "===> [xadf]: Ensures xadfrc is sourced in %s...\n" "$shellrc"
+sed 's/#.*$//' "$shellrc"|grep -q "^. ~/\.config/xadf/xadfrc$"
+test $? -gt 0 && printf ". ~/.config/xadf/xadfrc\n" >> "$shellrc"
 if test $? -gt 0
 then
 	printf "===> [xadf]: xadfrc is already sourced...OK\n"
 else
-	printf "===> [xadf]: xadfrc is appended to ~/.bashrc...DONE\n"
+	printf "===> [xadf]: xadfrc is appended to %s...DONE\n" "$shellrc"
 fi
 }
 
@@ -117,7 +129,7 @@ xadf_build_xadfrc
 printf "===> [xadf]: Ensures recipe.txt is present\n"
 test ! -d ~/.config/xadf/recipe.txt && xadf_build_recipe
 printf "===> [xadf]: Touching ~/.bashrc\n"
-xadf_touch_bashrc
+xadf_touch_shell_rc
 printf "===> [xadf]: You may want to source your ~/.bashrc\n"
 printf "===> [xadf]: Afterwards you may want to hide untracked files with:\n"
 printf "===> [xadf]:   xadf config status.showUntrackedFiles no\n"
@@ -125,10 +137,9 @@ printf "===> [xadf]:   xadf config status.showUntrackedFiles no\n"
 
 xadf_minimal_test(){
 # Checkpoint, if either one of them does not exist, it is a failed download.
-if test ! -f ~/.local/xadf/templates/bash_aliases || \
-   test ! -f ~/.local/xadf/templates/bash_functions || \
-   test ! -f ~/.local/xadf/templates/default-recipe.txt || \
-   test ! -f ~/.local/xadf/templates/template-xadfrc
+if test ! -f ~/.local/share/xadf/recipe.txt || \
+   test ! -f ~/.local/share/xadf/xadfrc || \
+   test ! -f ~/.local/xadf/initrc
 then
 	printf "===> [xadf]: WARNING! It is likely that one of the downloads has failed. Please try again.\n" >&2
 	exit 17
@@ -147,7 +158,7 @@ printf "===> [xadf]:   xadf -i -s URL [--seat DIR] [-b BRANCH]\n"
 xadf_curl_download(){
 # A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
 # is specified with --seat
-curl -o ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
+curl -so ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/bin/xadf
 if test $? -gt 0
 then
 	printf "===> [xadf]: WARNING! File not found! Aborting...\n" >&2
@@ -158,10 +169,10 @@ else
 	chmod +x ~/.local/bin/xadf
 	# Download supporting files required to create basic configuration
 	printf "===> [xadf]: Download required files...\n"
-	for file in bash_aliases bash_functions default-recipe.txt template-xadfrc
+	for file in share/xadf/recipe.txt share/xadf/xadfrc xadf/initrc
 	do
-		curl -o ~/.local/xadf/templates/${file} \
-		https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/${file}
+		curl -so ~/.local/"${file}" \
+		https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/"${file}"
 	done
 
 	# Checkpoint, if either one of them does not exist, it is a failed download.
@@ -172,7 +183,7 @@ fi
 xadf_wget_download(){
 # A dirty hack: check if the download is a success. If it fails, it is likely that a wrong branch
 # is specified with --seat
-wget -O ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/bin/xadf
+wget -O ~/.local/bin/xadf https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/bin/xadf
 if test $? -gt 0
 then
 	printf "===> [xadf]: WARNING! File not found! Aborting...\n" >&2
@@ -183,10 +194,10 @@ else
 	chmod +x ~/.local/bin/xadf
 	# Download supporting files required to create basic configuration
 	printf "===> [xadf]: Download required files...\n"
-	for file in bash_aliases bash_functions default-recipe.txt template-xadfrc
+	for file in share/xadf/recipe.txt share/xadf/xadfrc xadf/initrc
 	do
-		wget -O ~/.local/xadf/templates/${file} \
-		https://gitlab.com/heno72/xadf/-/raw/${install_branch}/.local/xadf/templates/${file}
+		wget -O ~/.local/"${file}" \
+		https://gitlab.com/heno72/xadf/-/raw/"${install_branch}"/.local/"${file}"
 	done
 
 	# Checkpoint, if either one of them does not exist, it is a failed download.
@@ -324,7 +335,7 @@ test ! -f "$HOME/.bashrc" && cp /etc/skel/.bashrc ~/.bashrc
 #    line to the end of ~/.bashrc. Note that it should at first strip all
 #    comments off by piping to sed (does not modify .bashrc) and then
 #    performs grep search
-xadf_touch_bashrc && export touch_bashrc=0
+xadf_touch_shell_rc && export touch_shell_rc=0
 
 # 10. Builds xadfrc from $xadfmods/template-xadfrc with xadf -x (honors --seat option)
 test ! -f ~/.config/xadfrc && xadf_build_xadfrc && export build_xadfrc=0
@@ -424,7 +435,11 @@ Normal usage options:
                           PATH is relative to repository root.
   --build-recipe/-r       Produces \$xadfconfig/recipe.txt by copying from template.
   --build-xadfrc/-x       Produces \$xadfconfig/xadfrc by constructing from template.
-  --touch-bashrc/-t       Modify .bashrc to source xadfrc if it isn't already.
+  --touch-shell-rc/-t     Modify .bashrc or .zshrc to source xadfrc if it isn't already.
+  --touch SHELLRC         Modify file SHELLRC to source xadfrc if it isn't already.
+                          Currently supported SHELLRC: ~/.bashrc and ~/.zshrc
+  --touch-bashrc          Alias to: --touch \$HOME/.bashrc
+  --touch-zshrc           Alias to: --touch \$HOME/.zshrc
   --init-bare             Initialize a bare git repository at \$HOME.
                           Specify custom git directory with '--seat DIR' option.
   --custom-seat/-c DIR    Sets xadf git directory to DIR, then assumes the following commands are git commands.
@@ -539,8 +554,29 @@ while :; do
 			export build_xadfrc=1
 			shift
 			;;
-		-t | --touch-bashrc )
-			export touch_bashrc=1
+		-t | --touch-shell-rc )
+			export touch_shell_rc=1
+			shift
+			;;
+		--touch )
+			if test -z "$2"
+			then
+				printf >&2 "Error: No SHELLRC file is set!\nUsage: xadf --touch SHELLRC\n\n"
+				exit 19
+			else
+				export touch_shell_rc=1
+				export shell_rcfile="$(realpath $2)"
+				shift 2
+			fi
+			;;
+		--touch-bashrc )
+			export touch_shell_rc=1
+			export shell_rcfile="$(realpath $HOME/.bashrc)"
+			shift
+			;;
+		--touch-zshrc )
+			export touch_shell_rc=1
+			export shell_rcfile="$(realpath $HOME/.zshrc)"
 			shift
 			;;
 		--init-bare )
@@ -639,9 +675,9 @@ then
 	xadf_build_xadfrc
 fi
 
-if test $touch_bashrc -eq 1
+if test $touch_shell_rc -eq 1
 then
-	xadf_touch_bashrc
+	xadf_touch_shell_rc
 fi
 
 if test $vanilla_xadf -eq 1 || test $set_origin_url -eq 1
