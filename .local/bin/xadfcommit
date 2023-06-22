@@ -85,8 +85,49 @@ else
 fi
 }
 
-# Changing to executable script instead of just a function
-# xadfcommit(){
+xadfcommit_help(){
+# runs xadfcommit_version
+xadfcommit_version
+# prints help text then exit
+cat <<TERMINUS
+  A bash script to handle version number of xadf script. Will
+  import $version from the target script, and surgically parse
+  version numbers, and increment when needed. Then will reappend
+  the version number to the version variable of the script.
+
+  Currently works with the following version format:
+
+  v<major_version>.<minor_version>.<YYYYMMDD.HHMM>[+<label text>]
+
+  (eg. v2.1.20230622.1520+adds_support_for_zsh)
+
+USAGE
+
+  xadfcommit -L <short label> --no-git --path bin/xadf -M
+
+Note: Argument positioning is arbitrary, and all are optional.
+      Will detect unstaged modified files with git when given
+      no arguments.
+
+OPTIONS
+
+  --label/-L LABEL   Appends label LABEL to the end of version string.
+  --path/-p PATH     Uses PATH instead of traversing git output.
+  --no-git/-n        Does not perform git commit to target file.
+  --major/-M         Resets minor version and increment major version.
+  --version/-v       Prints version number, then exit.
+  --help/-h          Prints this help text, then exit.
+
+TERMINUS
+}
+
+xadfcommit_version(){
+# Prints version, then exit
+printf "xadfcommit version %s\n\n" "$version"
+}
+
+# Version number, so help can show useful info
+version=v0.9
 
 # Safety feature, if 1 then abort at execution
 xadfcommit_bad_states=0
@@ -102,10 +143,19 @@ xadfcommit_major=0
 # If -L/--label is given, parse label
 # If -p/--path is given, use path
 # if -n/--no-git is given, do not perform git operations
+# If -M/--major is given, increment major version
 
 while :;
 do
   case $1 in
+    -v | --version )
+      xadfcommit_version
+      exit 0
+      ;;
+    -h | --help )
+      xadfcommit_help
+      exit 0
+      ;;
     -L | --label )
       if test -z "$2"
       then
@@ -155,5 +205,4 @@ then
   xadf_commit_append_version
   xadf_safe_commit
 fi
-# }
 
