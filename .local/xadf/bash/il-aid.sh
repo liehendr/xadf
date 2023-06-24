@@ -35,21 +35,24 @@ igload(){
   stack ls x
 }
 
-# ilaset will configure convenience aliases
-# for working with sorting profiles
-declare -A ilavar
-ilavar=(
-p popin
-i 'lto input'
-a 'lto alpha'
-b 'lto beta'
-g 'lto gamma'
-t 'lto trash'
-x 'stack ls x'
-xl 'stack ls xl'
-)
-
 ilaset(){
+if test "${#ilavar[@]}" -eq 0 ; then
+  # ilaset will configure convenience aliases
+  # for working with sorting profiles
+  declare -A ilavar
+  ilavar=(
+  p popin
+  i 'lto input'
+  a 'lto alpha'
+  b 'lto beta'
+  g 'lto gamma'
+  t 'lto trash'
+  x 'stack ls x'
+  xl 'stack ls xl'
+  )
+  export ilavar
+fi
+
 test -z "$1" && local set="on" || local set="$1"
 
 if [[ "$set" == "on" ]]
